@@ -17,6 +17,12 @@ module.exports = {
     // Optional: List your projects, they must have `name` and `description`. `link` is optional.
     projects: [
       {
+        name: 'WIP: Fridgy',
+        description:
+          'ERP system for your fridge :) More info coming soon...',
+        link: 'https://github.com/Fridgy-app',
+      },
+      {
         name: 'Thingoo',
         description:
           'I\'m the founder and lead developer of a new open source IoT platform, designed with ease of DIY devices integration in mind. Built with KNI members (https://kni.mini.pw.edu.pl) [Spring (Kotlin) + Angular]',
@@ -35,10 +41,10 @@ module.exports = {
         link: 'https://github.com/BartlomiejRasztabiga/AnotherTodoApp',
       },
       {
-        name: 'Teams Auto Call Recorder',
+        name: 'RedAlert',
         description:
-          'Python script for lazy students to automatically join Teams meetings and record them. [Python]',
-        link: 'https://github.com/BartlomiejRasztabiga/ms-teams-auto-call-recorder',
+          'System allowing users to send emergency requests (with their location) to appropriate public service (e.g. ambulance) based on a series of questions. This app has won Hackathon Idea Kielce 2018. Consists of mobile app for users and webapp for service operators. [React.js + React Native + Express.js]',
+        link: 'https://github.com/RedAlertApp',
       },
       {
         name: 'ReadMe',
