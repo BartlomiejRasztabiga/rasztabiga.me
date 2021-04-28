@@ -21,7 +21,7 @@ module.exports = {
       {
         name: 'WIP: Fridgy',
         description:
-          'ERP system for your fridge :) More info coming soon...',
+          'ERP system for your fridge :) More details coming soon...',
         link: 'https://github.com/Fridgy-app',
       },
       {
