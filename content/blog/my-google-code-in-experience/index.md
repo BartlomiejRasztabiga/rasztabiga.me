@@ -1,6 +1,6 @@
 ---
 title: My Google Code-in 2017 experience
-date: '2018-02-22T12:00:00.00Z'
+date: '2018-02-22T12:00:00.000Z'
 ---
 
 ### How did I find about Google Code-in?
