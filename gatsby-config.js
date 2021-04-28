@@ -7,67 +7,83 @@ module.exports = {
     // Main Site Title
     title: `Bartłomiej Rasztabiga | Backend Developer`,
     // Description that goes under your name in main bio
-    description: `Lorem ipsum dolor sit amet consectetur adipisicing elit, ipsum.`,
+    description: `Backend Software Engineer`,
     // Optional: Github account URL
     github: `https://github.com/BartlomiejRasztabiga`,
     // Optional: LinkedIn account URL
     linkedin: `https://www.linkedin.com/in/bartlomiej-rasztabiga/`,
     // Content of the About Me section
-    about: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus perferendis porro cumque ea error ab voluptatem. Temporibus adipisci exercitationem similique itaque quibusdam laudantium, qui molestiae quas, aut amet animi id.`,
+    about: `Backend Developer (Java, Kotlin, Python, JavaScript) eager to broaden skills range in developing web applications.`,
     // Optional: List your projects, they must have `name` and `description`. `link` is optional.
     projects: [
       {
-        name: 'Devfolio',
+        name: 'Thingoo',
         description:
-          'A zero-config and blazing fast personal site + blog built with GatsbyJs and TailwindCSS',
-        link: 'https://github.com/RyanFitzgerald/devfolio',
+          'I\'m the founder and lead developer of a new open source IoT platform, designed with ease of DIY devices integration in mind. Built with KNI members (https://kni.mini.pw.edu.pl) [Spring (Kotlin) + Angular]',
+        link: 'https://github.com/ThingooKNI',
       },
       {
-        name: 'ChromeExtensionKit',
+        name: 'Rentally',
         description:
-          'Kit to jump-start your Chrome extension projects with a variety of battle-tested starter templates',
-        link: 'https://chromeextensionkit.com/?ref=devfolio',
+          'Web application for car rental services. Built for university course. [FastAPI + React.js]',
+        link: 'https://github.com/BartlomiejRasztabiga/Rentally',
       },
       {
-        name: 'Another Cool Project',
+        name: 'Another Todo App',
         description:
-          'Lorem ipsum dolor sit amet consectetur adipisicing elit ducimus perferendis',
-        link: 'https://github.com/RyanFitzgerald/devfolio',
+          'To-Do app built with Firebase Firestore as its storage and serverless backend. [React.js + Firestore]',
+        link: 'https://github.com/BartlomiejRasztabiga/AnotherTodoApp',
+      },
+      {
+        name: 'Teams Auto Call Recorder',
+        description:
+          'Python script for lazy students to automatically join Teams meetings and record them. [Python]',
+        link: 'https://github.com/BartlomiejRasztabiga/ms-teams-auto-call-recorder',
+      },
+      {
+        name: 'ReadMe',
+        description:
+          'Android app that was supposed to help people keep motivated to read their books using reminders and progress statistics. [Android (Java)]',
+        link: 'https://github.com/BartlomiejRasztabiga/readme-app',
       },
     ],
     // Optional: List your experience, they must have `name` and `description`. `link` is optional.
     experience: [
       {
-        name: 'Acme Corp',
-        description: 'Full-Stack Developer, February 2020 - Present',
-        link: 'https://github.com/RyanFitzgerald/devfolio',
+        name: 'Ignite Software Development',
+        description: 'Kotlin/Java Software Engineer, July 2019 - August 2020',
+        link: 'https://linkedin.com/company/ignite-software-development',
       },
       {
-        name: 'Globex Corp',
-        description: 'Full-Stack Developer, December 2017 - February 2020',
-        link: 'https://github.com/RyanFitzgerald/devfolio',
-      },
-      {
-        name: 'Hooli',
-        description: 'Full-Stack Developer, May 2015 - December 2017',
-        link: 'https://github.com/RyanFitzgerald/devfolio',
+        name: 'Transition Technologies PSC Sp. z o.o.',
+        description: 'Embedded C++ Developer Intern (IoT), July 2017 - September 2017',
+        link: 'https://ttpsc.com',
       },
     ],
     // Optional: List your skills, they must have `name` and `description`.
     skills: [
       {
-        name: 'Languages & Frameworks',
+        name: 'Languages',
         description:
-          'JavaScript (ES6+), Golang, Node.js, Express.js, React, Ruby on Rails, PHP',
+          'Kotlin, Java, Python, JavaScript (ES6+)',
+      },
+      {
+        name: 'Frameworks & Libraries',
+        description:
+          'Spring, Hibernate, FastAPI, React.js, Node.js, Express.js, Angular, Android',
       },
       {
         name: 'Databases',
-        description: 'MongoDB, PostreSQL, MySQL',
+        description: 'PostgreSQL, MySQL/MariaDB, MongoDB',
       },
       {
         name: 'Other',
         description:
-          'Docker, Amazon Web Services (AWS), CI / CD, Microservices, API design, Agile / Scrum',
+          'Git, Docker, Kubernetes, Google Cloud Platform (GCP), CI / CD, Microservices, API design, Agile / Scrum, JUnit, Gradle, Maven',
+      },
+      {
+        name: 'Currently learning',
+        description: 'Microservices design patterns, Micronaut framework',
       },
     ],
   },
