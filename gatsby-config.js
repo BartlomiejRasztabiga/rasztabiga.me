@@ -12,6 +12,8 @@ module.exports = {
     github: `https://github.com/BartlomiejRasztabiga`,
     // Optional: LinkedIn account URL
     linkedin: `https://www.linkedin.com/in/bartlomiej-rasztabiga/`,
+    // Optional: Resume PDF URL
+    resume: `https://rasztabiga.me/resume.pdf`,
     // Content of the About Me section
     about: `Backend Developer (Java, Kotlin, Python, JavaScript) eager to broaden skills range in developing web applications.`,
     // Optional: List your projects, they must have `name` and `description`. `link` is optional.

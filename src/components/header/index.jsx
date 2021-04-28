@@ -21,6 +21,7 @@ const Header = ({ metadata = {}, noBlog = false }) => {
   const twitter = get(metadata, 'author', false);
   const github = get(metadata, 'github', false);
   const linkedin = get(metadata, 'linkedin', false);
+  const resume = get(metadata, 'resume', false);
 
   return (
     <div className={classes.wrapper}>
@@ -47,14 +48,14 @@ const Header = ({ metadata = {}, noBlog = false }) => {
           )}
           {github && (
             <li className={classes.item}>
-              <a className={classes.link} href={github}>
+              <a className={classes.link} href={github} target="_blank">
                 GitHub
               </a>
             </li>
           )}
           {linkedin && (
             <li className={classes.item}>
-              <a className={classes.link} href={linkedin}>
+              <a className={classes.link} href={linkedin} target="_blank">
                 LinkedIn
               </a>
             </li>
@@ -64,6 +65,13 @@ const Header = ({ metadata = {}, noBlog = false }) => {
               <Link className={classes.link} to="/blog">
                 Blog
               </Link>
+            </li>
+          )}
+          {resume && (
+            <li className={classes.item}>
+              <a className={classes.link} href={resume} target="_blank">
+                Resume
+              </a>
             </li>
           )}
         </ul>
