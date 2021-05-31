@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bartłomiej Rasztabiga | Backend Developer]]></title><description><![CDATA[Backend Software Engineer]]></description><link>https://rasztabiga.me</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 23 May 2021 13:02:44 GMT</lastBuildDate><item><title><![CDATA[I've been accepted to Google Summer of Code 2021]]></title><description><![CDATA[As the title says I’ve been accepted to participate in Google Summer of Code 2021 in the OpenMRS organization! Choosing organization As I’ve…]]></description><link>https://rasztabiga.me/blog/accepted-to-google-summer-of-code-2021/</link><guid isPermaLink="false">https://rasztabiga.me/blog/accepted-to-google-summer-of-code-2021/</guid><pubDate>Sun, 23 May 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;As the title says&lt;/h3&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bartłomiej Rasztabiga | Backend Developer]]></title><description><![CDATA[Backend Software Engineer]]></description><link>https://rasztabiga.me</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 31 May 2021 16:04:37 GMT</lastBuildDate><item><title><![CDATA[I've been accepted to Google Summer of Code 2021]]></title><description><![CDATA[As the title says I’ve been accepted to participate in Google Summer of Code 2021 in the OpenMRS organization! Choosing organization As I’ve…]]></description><link>https://rasztabiga.me/blog/accepted-to-google-summer-of-code-2021/</link><guid isPermaLink="false">https://rasztabiga.me/blog/accepted-to-google-summer-of-code-2021/</guid><pubDate>Sun, 23 May 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;As the title says&lt;/h3&gt;
 &lt;p&gt;I’ve been accepted to participate in Google Summer of Code 2021 in the OpenMRS organization!&lt;/p&gt;
 &lt;h3&gt;Choosing organization&lt;/h3&gt;
 &lt;p&gt;As I’ve already contributed to OpenMRS in Google Code-in 2017 that was a natural move to choose the same organization
@@ -8,9 +8,9 @@ for GSoC :)&lt;/p&gt;
 administrative functions that are not yet available through REST. That’s a requirement for proceeding with developing
 new Microfrontend Architecture. One of the goals of this project is to be able to render links to administration pages
 for install modules within a new (REACT-based) administration application.&lt;/p&gt;
-&lt;p&gt;Project on GSoC dashboard: &lt;a href=&quot;&quot;&gt;https://summerofcode.withgoogle.com/projects/#6176312789565440&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Project on GSoC dashboard: &lt;a href=&quot;https://summerofcode.withgoogle.com/projects/#6176312789565440&quot;&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;You can read my proposal
-here: &lt;a href=&quot;&quot;&gt;https://docs.google.com/document/d/12Z3ui0y7h8gapoSuIiEJJ6jsK2RImSJCUyKfvb4LWcc/edit?usp=sharing&lt;/a&gt;&lt;/p&gt;
+here: &lt;a href=&quot;https://docs.google.com/document/d/12Z3ui0y7h8gapoSuIiEJJ6jsK2RImSJCUyKfvb4LWcc/edit?usp=sharing&quot;&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;h3&gt;My first task&lt;/h3&gt;
 &lt;p&gt;My first major objective is to find missing endpoint from administrative functions.&lt;/p&gt;
 &lt;p&gt;I will start by adding the support to be able to export links of administration pages through REST resource.&lt;/p&gt;
