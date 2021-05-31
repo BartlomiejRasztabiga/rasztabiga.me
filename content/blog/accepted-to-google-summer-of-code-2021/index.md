@@ -19,10 +19,10 @@ administrative functions that are not yet available through REST. That’s a req
 new Microfrontend Architecture. One of the goals of this project is to be able to render links to administration pages
 for install modules within a new (REACT-based) administration application.
 
-Project on GSoC dashboard: [https://summerofcode.withgoogle.com/projects/#6176312789565440]()
+Project on GSoC dashboard: [](https://summerofcode.withgoogle.com/projects/#6176312789565440)
 
 You can read my proposal
-here: [https://docs.google.com/document/d/12Z3ui0y7h8gapoSuIiEJJ6jsK2RImSJCUyKfvb4LWcc/edit?usp=sharing]()
+here: [](https://docs.google.com/document/d/12Z3ui0y7h8gapoSuIiEJJ6jsK2RImSJCUyKfvb4LWcc/edit?usp=sharing)
 
 ### My first task
 
