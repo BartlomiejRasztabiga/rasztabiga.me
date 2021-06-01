@@ -1,5 +1,6 @@
 ---
-title: GSoC 2021: Week 0 date: '2021-06-01T12:00:00.000Z'
+title: GSoC 2021 - Week 0
+date: '2021-06-01T12:00:00.000Z'
 ---
 
 ### Getting familiar with REST-WS development
