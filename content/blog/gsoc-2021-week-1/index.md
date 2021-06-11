@@ -53,13 +53,15 @@ My first task - exposing list of administration links for installed modules thro
 
 AdministrationLink1_8
 
+// TODO
+
 #### Created resource for administration link
 
 AdministrationLinkResource1_8
 
 extends BaseDelegatingReadableResource
 
-- what is a delegate?
+// TODO
 
 ### My second task
 
