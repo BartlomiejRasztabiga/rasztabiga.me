@@ -47,21 +47,28 @@ Let's tackle the first task from the list :)
 
 ### My first task
 
-My first task - exposing list of administration links for installed modules through REST.
+My first task - exposing the list of administration links for installed modules through REST. [RESTWS-821](https://issues.openmrs.org/browse/RESTWS-821)
 
-#### Created class for administration link
+#### Created wrapper class for the resource return value
 
-AdministrationLink1_8
+I've created class `ModuleAdministrationLinks1_8` that represents one module with its administration links. It also contains `AdministrationLink` inner class to encapsulate a single link with its title.
 
-// TODO
+#### Created AdministrationLinksResource1_8
 
-#### Created resource for administration link
+It extends `BaseDelegatingReadableResource` class, because it only provides GET operations, as those objects cannot be persisted directly.
 
-AdministrationLinkResource1_8
+The implementation of it is fairly simple. I'm gathering all AdministrationSection extensions by calling `ModuleFactory.getExtensions("org.openmrs.admin.list")`.
+Then I'm casting each extension to its supper class - `AdministrationSectionExt` and retrieving a map of administration links. What's left to do is to pack this into my custom class and send it as a response :)
 
-extends BaseDelegatingReadableResource
+#### Created AdministrationLinksResource1_8Test
 
-// TODO
+Every class must be tested. That's why I've created a basic unit test for my new REST Resource.
+My class extends `BaseDelegatingResourceTest` so I didn't have much code to write myself.
+
+#### Posted a Pull Request
+
+After implementing all of the above, I've posted a pull request to review: [https://github.com/openmrs/openmrs-module-webservices.rest/pull/484](https://github.com/openmrs/openmrs-module-webservices.rest/pull/484)
+I've also created a pull request with the documentation for the AdministrationLinksResource: [https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140)
 
 ### My second task
 
