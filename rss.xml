@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bartłomiej Rasztabiga | Backend Developer]]></title><description><![CDATA[Backend Software Engineer]]></description><link>https://rasztabiga.me</link><generator>GatsbyJS</generator><lastBuildDate>Fri, 11 Jun 2021 20:33:16 GMT</lastBuildDate><item><title><![CDATA[GSoC 2021 - Week 1]]></title><description><![CDATA[Planning the work I’ve started the week by gathering all requirements for the task ahead. First, I’ve used these two articles on OpenMRS…]]></description><link>https://rasztabiga.me/blog/gsoc-2021-week-1/</link><guid isPermaLink="false">https://rasztabiga.me/blog/gsoc-2021-week-1/</guid><pubDate>Mon, 07 Jun 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;Planning the work&lt;/h3&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bartłomiej Rasztabiga | Backend Developer]]></title><description><![CDATA[Backend Software Engineer]]></description><link>https://rasztabiga.me</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 12 Jun 2021 20:15:52 GMT</lastBuildDate><item><title><![CDATA[GSoC 2021 - Week 1]]></title><description><![CDATA[Planning the work I’ve started the week by gathering all requirements for the task ahead. First, I’ve used these two articles on OpenMRS…]]></description><link>https://rasztabiga.me/blog/gsoc-2021-week-1/</link><guid isPermaLink="false">https://rasztabiga.me/blog/gsoc-2021-week-1/</guid><pubDate>Mon, 07 Jun 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;Planning the work&lt;/h3&gt;
 &lt;p&gt;I’ve started the week by gathering all requirements for the task ahead.&lt;/p&gt;
 &lt;p&gt;First, I’ve used these two articles on OpenMRS Wiki:&lt;/p&gt;
 &lt;ul&gt;
@@ -32,27 +32,36 @@ documented well, and in some cases, required features were already implemented b
 &lt;/ul&gt;
 &lt;p&gt;As you can see, most of them involve creating a brand new resource for our objects.&lt;/p&gt;
 &lt;p&gt;Me and my mentors decided that we’ll be adding or removing tasks from this list when needed, according to the time left.&lt;/p&gt;
-&lt;p&gt;Let’s tackle the first task from the list :)&lt;/p&gt;
+&lt;p&gt;Let’s look at the first task from the list :)&lt;/p&gt;
 &lt;h3&gt;My first task&lt;/h3&gt;
-&lt;p&gt;My first task - exposing list of administration links for installed modules through REST.&lt;/p&gt;
-&lt;h4&gt;Created class for administration link&lt;/h4&gt;
-&lt;p&gt;AdministrationLink1_8&lt;/p&gt;
-&lt;p&gt;// TODO&lt;/p&gt;
-&lt;h4&gt;Created resource for administration link&lt;/h4&gt;
-&lt;p&gt;AdministrationLinkResource1_8&lt;/p&gt;
-&lt;p&gt;extends BaseDelegatingReadableResource&lt;/p&gt;
-&lt;p&gt;// TODO&lt;/p&gt;
+&lt;p&gt;My first task - exposing the list of administration links for installed modules through REST.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-821&quot;&gt;RESTWS-821&lt;/a&gt;&lt;/p&gt;
+&lt;h4&gt;Created wrapper class for the resource return value&lt;/h4&gt;
+&lt;p&gt;I’ve created class &lt;code class=&quot;language-text&quot;&gt;ModuleAdministrationLinks1_8&lt;/code&gt; that represents one module with its administration links. It also contains &lt;code class=&quot;language-text&quot;&gt;AdministrationLink&lt;/code&gt; inner class to encapsulate a single link with its title.&lt;/p&gt;
+&lt;h4&gt;Created AdministrationLinksResource1_8&lt;/h4&gt;
+&lt;p&gt;It extends &lt;code class=&quot;language-text&quot;&gt;BaseDelegatingReadableResource&lt;/code&gt; class, because it only provides GET operations, as those objects cannot be persisted directly.&lt;/p&gt;
+&lt;p&gt;The implementation of it is fairly simple. I’m gathering all AdministrationSection extensions by calling &lt;code class=&quot;language-text&quot;&gt;ModuleFactory.getExtensions(&amp;quot;org.openmrs.admin.list&amp;quot;)&lt;/code&gt;.
+Then I’m casting each extension to its supper class - &lt;code class=&quot;language-text&quot;&gt;AdministrationSectionExt&lt;/code&gt; and retrieving a map of administration links. What’s left to do is to pack this into my custom class and send it as a response :)&lt;/p&gt;
+&lt;h4&gt;Created AdministrationLinksResource1_8Test&lt;/h4&gt;
+&lt;p&gt;Every class must be tested. That’s why I’ve created a basic unit test for my new REST Resource.
+My class extends &lt;code class=&quot;language-text&quot;&gt;BaseDelegatingResourceTest&lt;/code&gt; so I didn’t have much code to write myself.&lt;/p&gt;
+&lt;h4&gt;Posted a Pull Request&lt;/h4&gt;
+&lt;p&gt;After implementing all of the above, I’ve posted a pull request to review:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/openmrs/openmrs-module-webservices.rest/pull/484&quot;&gt;https://github.com/openmrs/openmrs-module-webservices.rest/pull/484&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;I’ve also created a pull request with the documentation for the AdministrationLinksResource:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140&quot;&gt;https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140&lt;/a&gt;&lt;/p&gt;
 &lt;h3&gt;My second task&lt;/h3&gt;
 &lt;p&gt;My second task was &lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-822&quot;&gt;RESTWS-822&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;It involved adding the ability to include disabled users when querying UserResource.&lt;/p&gt;
 &lt;p&gt;After investigating, it turned out that the Resource already supports such a filter, and you would only need to
 append &lt;code class=&quot;language-text&quot;&gt;includeAll=true&lt;/code&gt; parameter to retrieve all users, including disabled ones.&lt;/p&gt;
 &lt;p&gt;That’s why I’ve only made a pull request to update the REST API
-documentation: &lt;a href=&quot;https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141&quot;&gt;https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141&lt;/a&gt;&lt;/p&gt;
+documentation:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141&quot;&gt;https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141&lt;/a&gt;&lt;/p&gt;
 &lt;h4&gt;Summary&lt;/h4&gt;
 &lt;p&gt;That’s it for the week. It was a fairly productive one, mainly because I’m in the middle of preparing for my final exams
 at the university :)&lt;/p&gt;
-&lt;p&gt;Next week, I will try to implement a more significant task - &lt;a href=&quot;RESTWS-823&quot;&gt;RESTWS-823&lt;/a&gt;. It will involve me creating a REST resource from
+&lt;p&gt;Next week, I will try to implement a more significant task - &lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-823&quot;&gt;RESTWS-823&lt;/a&gt;. It will involve me creating a REST resource from
 scratch.&lt;/p&gt;
 &lt;p&gt;Take care and stay safe!&lt;/p&gt;
 &lt;h3&gt;Resources:&lt;/h3&gt;

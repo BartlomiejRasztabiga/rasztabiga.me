@@ -32,27 +32,36 @@ documented well, and in some cases, required features were already implemented b
 </ul>
 <p>As you can see, most of them involve creating a brand new resource for our objects.</p>
 <p>Me and my mentors decided that we’ll be adding or removing tasks from this list when needed, according to the time left.</p>
-<p>Let’s tackle the first task from the list :)</p>
+<p>Let’s look at the first task from the list :)</p>
 <h3>My first task</h3>
-<p>My first task - exposing list of administration links for installed modules through REST.</p>
-<h4>Created class for administration link</h4>
-<p>AdministrationLink1_8</p>
-<p>// TODO</p>
-<h4>Created resource for administration link</h4>
-<p>AdministrationLinkResource1_8</p>
-<p>extends BaseDelegatingReadableResource</p>
-<p>// TODO</p>
+<p>My first task - exposing the list of administration links for installed modules through REST.</p>
+<p><a href="https://issues.openmrs.org/browse/RESTWS-821">RESTWS-821</a></p>
+<h4>Created wrapper class for the resource return value</h4>
+<p>I’ve created class <code class="language-text">ModuleAdministrationLinks1_8</code> that represents one module with its administration links. It also contains <code class="language-text">AdministrationLink</code> inner class to encapsulate a single link with its title.</p>
+<h4>Created AdministrationLinksResource1_8</h4>
+<p>It extends <code class="language-text">BaseDelegatingReadableResource</code> class, because it only provides GET operations, as those objects cannot be persisted directly.</p>
+<p>The implementation of it is fairly simple. I’m gathering all AdministrationSection extensions by calling <code class="language-text">ModuleFactory.getExtensions(&quot;org.openmrs.admin.list&quot;)</code>.
+Then I’m casting each extension to its supper class - <code class="language-text">AdministrationSectionExt</code> and retrieving a map of administration links. What’s left to do is to pack this into my custom class and send it as a response :)</p>
+<h4>Created AdministrationLinksResource1_8Test</h4>
+<p>Every class must be tested. That’s why I’ve created a basic unit test for my new REST Resource.
+My class extends <code class="language-text">BaseDelegatingResourceTest</code> so I didn’t have much code to write myself.</p>
+<h4>Posted a Pull Request</h4>
+<p>After implementing all of the above, I’ve posted a pull request to review:</p>
+<p><a href="https://github.com/openmrs/openmrs-module-webservices.rest/pull/484">https://github.com/openmrs/openmrs-module-webservices.rest/pull/484</a></p>
+<p>I’ve also created a pull request with the documentation for the AdministrationLinksResource:</p>
+<p><a href="https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140">https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140</a></p>
 <h3>My second task</h3>
 <p>My second task was <a href="https://issues.openmrs.org/browse/RESTWS-822">RESTWS-822</a>.</p>
 <p>It involved adding the ability to include disabled users when querying UserResource.</p>
 <p>After investigating, it turned out that the Resource already supports such a filter, and you would only need to
 append <code class="language-text">includeAll=true</code> parameter to retrieve all users, including disabled ones.</p>
 <p>That’s why I’ve only made a pull request to update the REST API
-documentation: <a href="https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141">https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141</a></p>
+documentation:</p>
+<p><a href="https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141">https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141</a></p>
 <h4>Summary</h4>
 <p>That’s it for the week. It was a fairly productive one, mainly because I’m in the middle of preparing for my final exams
 at the university :)</p>
-<p>Next week, I will try to implement a more significant task - <a href="RESTWS-823">RESTWS-823</a>. It will involve me creating a REST resource from
+<p>Next week, I will try to implement a more significant task - <a href="https://issues.openmrs.org/browse/RESTWS-823">RESTWS-823</a>. It will involve me creating a REST resource from
 scratch.</p>
 <p>Take care and stay safe!</p>
 <h3>Resources:</h3>
