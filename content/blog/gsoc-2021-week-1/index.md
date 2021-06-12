@@ -43,11 +43,13 @@ As you can see, most of them involve creating a brand new resource for our objec
 
 Me and my mentors decided that we'll be adding or removing tasks from this list when needed, according to the time left.
 
-Let's tackle the first task from the list :)
+Let's look at the first task from the list :)
 
 ### My first task
 
-My first task - exposing the list of administration links for installed modules through REST. [RESTWS-821](https://issues.openmrs.org/browse/RESTWS-821)
+My first task - exposing the list of administration links for installed modules through REST.
+
+[RESTWS-821](https://issues.openmrs.org/browse/RESTWS-821)
 
 #### Created wrapper class for the resource return value
 
@@ -67,8 +69,13 @@ My class extends `BaseDelegatingResourceTest` so I didn't have much code to writ
 
 #### Posted a Pull Request
 
-After implementing all of the above, I've posted a pull request to review: [https://github.com/openmrs/openmrs-module-webservices.rest/pull/484](https://github.com/openmrs/openmrs-module-webservices.rest/pull/484)
-I've also created a pull request with the documentation for the AdministrationLinksResource: [https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140)
+After implementing all of the above, I've posted a pull request to review:
+
+[https://github.com/openmrs/openmrs-module-webservices.rest/pull/484](https://github.com/openmrs/openmrs-module-webservices.rest/pull/484)
+
+I've also created a pull request with the documentation for the AdministrationLinksResource:
+
+[https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140)
 
 ### My second task
 
@@ -80,14 +87,16 @@ After investigating, it turned out that the Resource already supports such a fil
 append `includeAll=true` parameter to retrieve all users, including disabled ones.
 
 That's why I've only made a pull request to update the REST API
-documentation: [https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141)
+documentation:
+
+[https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141)
 
 #### Summary
 
 That's it for the week. It was a fairly productive one, mainly because I'm in the middle of preparing for my final exams
 at the university :)
 
-Next week, I will try to implement a more significant task - [RESTWS-823](RESTWS-823). It will involve me creating a REST resource from
+Next week, I will try to implement a more significant task - [RESTWS-823](https://issues.openmrs.org/browse/RESTWS-823). It will involve me creating a REST resource from
 scratch.
 
 Take care and stay safe!
