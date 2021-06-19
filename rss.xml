@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bartłomiej Rasztabiga | Backend Developer]]></title><description><![CDATA[Backend Software Engineer]]></description><link>https://rasztabiga.me</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 19 Jun 2021 12:42:13 GMT</lastBuildDate><item><title><![CDATA[GSoC 2021 - Week 2]]></title><description><![CDATA[First serious work I’ve started the week by working on my next big task: RESTWS-823 It involves creating a REST Resource for Alert object…]]></description><link>https://rasztabiga.me/blog/gsoc-2021-week-2/</link><guid isPermaLink="false">https://rasztabiga.me/blog/gsoc-2021-week-2/</guid><pubDate>Sat, 19 Jun 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;First serious work&lt;/h3&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bartłomiej Rasztabiga | Backend Developer]]></title><description><![CDATA[Backend Software Engineer]]></description><link>https://rasztabiga.me</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 19 Jun 2021 17:01:34 GMT</lastBuildDate><item><title><![CDATA[GSoC 2021 - Week 2]]></title><description><![CDATA[First serious work I’ve started the week by working on my next big task: RESTWS-823 It involves creating a REST Resource for Alert object…]]></description><link>https://rasztabiga.me/blog/gsoc-2021-week-2/</link><guid isPermaLink="false">https://rasztabiga.me/blog/gsoc-2021-week-2/</guid><pubDate>Sat, 19 Jun 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;First serious work&lt;/h3&gt;
 &lt;p&gt;I’ve started the week by working on my next big task:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-823&quot;&gt;RESTWS-823&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;It involves creating a REST Resource for Alert object from scratch.&lt;/p&gt;
@@ -24,7 +24,7 @@
 &lt;p&gt;That’s it for the week. At the end of it I’ve started the following task:&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-842&quot;&gt;RESTWS-842&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;I’m going to continue working on it the next week. I will also tackle the next task from my list, which is:&lt;/p&gt;
-&lt;p&gt;[RESTWS-383(&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-838&quot;&gt;https://issues.openmrs.org/browse/RESTWS-838&lt;/a&gt;)&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-838&quot;&gt;RESTWS-383&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Hopefully, we will also resolve problems with the previous task.&lt;/p&gt;
 &lt;p&gt;Take care and stay safe!&lt;/p&gt;
 &lt;h3&gt;Resources:&lt;/h3&gt;
