@@ -1,6 +1,6 @@
 ---
 title: GSoC 2021 - Week 1 
-date: '2021-06-012T12:00:00.000Z'
+date: '2021-06-12T12:00:00.000Z'
 ---
 
 ### Planning the work
