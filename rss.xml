@@ -1,4 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bartłomiej Rasztabiga | Backend Developer]]></title><description><![CDATA[Backend Software Engineer]]></description><link>https://rasztabiga.me</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 26 Jun 2021 14:05:35 GMT</lastBuildDate><item><title><![CDATA[GSoC 2021 - Week 3]]></title><description><![CDATA[Week 3 update First blocker First, I wanted to work on the following ticket: RESTWS-842 It quickly turned out that the underlying service…]]></description><link>https://rasztabiga.me/blog/gsoc-2021-week-3/</link><guid isPermaLink="false">https://rasztabiga.me/blog/gsoc-2021-week-3/</guid><pubDate>Sat, 26 Jun 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;Week 3 update&lt;/h3&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bartłomiej Rasztabiga | Backend Developer]]></title><description><![CDATA[Backend Software Engineer]]></description><link>https://rasztabiga.me</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 04 Jul 2021 17:46:40 GMT</lastBuildDate><item><title><![CDATA[GSoC 2021 - Week 4]]></title><description><![CDATA[Week 4 update Issues closed. First, I wanted to note that we’ve been able to close quite a few issues this week! Here’s a list of them with…]]></description><link>https://rasztabiga.me/blog/gsoc-2021-week4/</link><guid isPermaLink="false">https://rasztabiga.me/blog/gsoc-2021-week4/</guid><pubDate>Sun, 04 Jul 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;Week 4 update&lt;/h3&gt;
+&lt;h4&gt;Issues closed.&lt;/h4&gt;
+&lt;p&gt;First, I wanted to note that we’ve been able to close quite a few issues this week!&lt;/p&gt;
+&lt;p&gt;Here’s a list of them with appropriate links:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-821&quot;&gt;RESTWS-821&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-823&quot;&gt;RESTWS-823&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-838&quot;&gt;RESTWS-838&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-839&quot;&gt;RESTWS-839&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-840&quot;&gt;RESTWS-840&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-825&quot;&gt;RESTWS-825&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;PRs in Code Review&lt;/h4&gt;
+&lt;p&gt;There are also 3 tasks currently undergoing a code review by my mentors:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-837&quot;&gt;RESTWS-837&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-824&quot;&gt;RESTWS-824&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-826&quot;&gt;RESTWS-826&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;In progress tasks&lt;/h4&gt;
+&lt;p&gt;There are also two tasks currently in progress:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-834&quot;&gt;RESTWS-834&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-842&quot;&gt;RESTWS-842&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The last one is blocked by another issue:
+&lt;a href=&quot;https://issues.openmrs.org/browse/TRUNK-6010&quot;&gt;TRUNK-6010&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;We’ve found that there were more issues with &lt;code class=&quot;language-text&quot;&gt;HibernatePatientDAO.getDuplicatePatientsByAttributes&lt;/code&gt; than initially thought. However, I’ve already submitted my PR with a fix here: &lt;a href=&quot;https://github.com/openmrs/openmrs-core/pull/3814&quot;&gt;https://github.com/openmrs/openmrs-core/pull/3814&lt;/a&gt;&lt;/p&gt;
+&lt;h4&gt;Next week&lt;/h4&gt;
+&lt;p&gt;In the upcoming week, I’m planning to close any currently reviewed/in-progress tasks and move to &lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-829&quot;&gt;RESTWS-829&lt;/a&gt; and &lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-836&quot;&gt;RESTWS-836&lt;/a&gt;, which will be pretty significant.&lt;/p&gt;
+&lt;p&gt;Best regards and see you next week!&lt;/p&gt;</content:encoded></item><item><title><![CDATA[GSoC 2021 - Week 3]]></title><description><![CDATA[Week 3 update First blocker First, I wanted to work on the following ticket: RESTWS-842 It quickly turned out that the underlying service…]]></description><link>https://rasztabiga.me/blog/gsoc-2021-week-3/</link><guid isPermaLink="false">https://rasztabiga.me/blog/gsoc-2021-week-3/</guid><pubDate>Sat, 26 Jun 2021 12:00:00 GMT</pubDate><content:encoded>&lt;h3&gt;Week 3 update&lt;/h3&gt;
 &lt;h4&gt;First blocker&lt;/h4&gt;
 &lt;p&gt;First, I wanted to work on the following ticket: &lt;a href=&quot;https://issues.openmrs.org/browse/RESTWS-842&quot;&gt;RESTWS-842&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;It quickly turned out that the underlying service that’s supposed to return duplicated patients throws SQLException.&lt;/p&gt;
@@ -243,37 +273,6 @@ here: &lt;a href=&quot;https://docs.google.com/document/d/12Z3ui0y7h8gapoSuIiEJJ
 &lt;p&gt;I’ve learned many things, e.g. how programming looks like in big, old projects, and also how does communication in such big open source team look like.
 That inspired me to create own open source project with my friends, that I will be posting about in the near future. (IoT platform, smart-home included, unfortunately without blockchain xD).&lt;/p&gt;
 &lt;h3&gt;P.S. Google Code-in 2017 Winner&lt;/h3&gt;
-&lt;p&gt;&lt;span
-      class=&quot;gatsby-resp-image-wrapper&quot;
-      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 590px; margin: 0 0 30px;&quot;
-    &gt;
-      &lt;a
-    class=&quot;gatsby-resp-image-link&quot;
-    href=&quot;/static/cc0e8d5bceb1bf935fed9f38fe87f67d/c3092/Bartlomiej_with_Chris.jpg&quot;
-    style=&quot;display: block&quot;
-    target=&quot;_blank&quot;
-    rel=&quot;noopener&quot;
-  &gt;
-    &lt;span
-    class=&quot;gatsby-resp-image-background-image&quot;
-    style=&quot;padding-bottom: 75%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAMEAgX/xAAVAQEBAAAAAAAAAAAAAAAAAAADAv/aAAwDAQACEAMQAAABnbzWUdBoNf/EABwQAAICAgMAAAAAAAAAAAAAAAABAgMREiEiMv/aAAgBAQABBQJcHSQoIduyr9ZP/8QAFREBAQAAAAAAAAAAAAAAAAAAEBH/2gAIAQMBAT8Bh//EABYRAAMAAAAAAAAAAAAAAAAAAAEQIv/aAAgBAgEBPwGAv//EABsQAAICAwEAAAAAAAAAAAAAAAERABAxMkFx/9oACAEBAAY/Ai0FNifKIUzyv//EABoQAQEBAAMBAAAAAAAAAAAAAAERACExcWH/2gAIAQEAAT8hdCAWugJd4DJOk93VCm4v4urf/9oADAMBAAIAAwAAABDT7//EABYRAQEBAAAAAAAAAAAAAAAAAAEAIf/aAAgBAwEBPxBZsF//xAAXEQEBAQEAAAAAAAAAAAAAAAABABFB/9oACAECAQE/EE4Wt//EABwQAQADAAIDAAAAAAAAAAAAAAEAETEhUUFhgf/aAAgBAQABPxAnVgO18DWLkIWU5RvlYZxdptVXd9Ny96mINvSesn//2Q==&apos;); background-size: cover; display: block;&quot;
-  &gt;&lt;/span&gt;
-  &lt;img
-        class=&quot;gatsby-resp-image-image&quot;
-        alt=&quot;Bartlomiej with Chris&quot;
-        title=&quot;Bartlomiej with Chris&quot;
-        src=&quot;/static/cc0e8d5bceb1bf935fed9f38fe87f67d/1c72d/Bartlomiej_with_Chris.jpg&quot;
-        srcset=&quot;/static/cc0e8d5bceb1bf935fed9f38fe87f67d/a80bd/Bartlomiej_with_Chris.jpg 148w,
-/static/cc0e8d5bceb1bf935fed9f38fe87f67d/1c91a/Bartlomiej_with_Chris.jpg 295w,
-/static/cc0e8d5bceb1bf935fed9f38fe87f67d/1c72d/Bartlomiej_with_Chris.jpg 590w,
-/static/cc0e8d5bceb1bf935fed9f38fe87f67d/a8a14/Bartlomiej_with_Chris.jpg 885w,
-/static/cc0e8d5bceb1bf935fed9f38fe87f67d/fbd2c/Bartlomiej_with_Chris.jpg 1180w,
-/static/cc0e8d5bceb1bf935fed9f38fe87f67d/c3092/Bartlomiej_with_Chris.jpg 4048w&quot;
-        sizes=&quot;(max-width: 590px) 100vw, 590px&quot;
-        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
-        loading=&quot;lazy&quot;
-      /&gt;
-  &lt;/a&gt;
-    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;Bartlomiej_with_Chris.jpg&quot;&gt;&lt;/p&gt;
 &lt;p&gt;Yes, a few weeks ago I got an email from Google that I was chosen as GCI Winner together with Fawwaz Yusran (check out his blog, he’s a pretty nice guy: &lt;a href=&quot;https://f4ww4z.me&quot;&gt;https://f4ww4z.me&lt;/a&gt;). I haven’t ever thought about such results so I’m double happy.&lt;/p&gt;
 &lt;p&gt;Here I want to give thanks to Daniel Kayiwa (&lt;a href=&quot;https://github.com/dkayiwa&quot;&gt;https://github.com/dkayiwa&lt;/a&gt;) for his great support with OpenMRS and Ivange Larry (&lt;a href=&quot;https://github.com/ivange94&quot;&gt;https://github.com/ivange94&lt;/a&gt;) for managing GCI tasks (tough job).&lt;/p&gt;</content:encoded></item></channel></rss>
