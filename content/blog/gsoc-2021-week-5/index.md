@@ -3,7 +3,7 @@ title: GSoC 2021 - Week 5
 date: '2021-07-11T12:00:00.000Z'
 ---
 
-### Week 6 update
+### Week 5 update
 
 #### Issues closed.
 
