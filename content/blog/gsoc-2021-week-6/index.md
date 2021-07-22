@@ -15,7 +15,6 @@ The following issue has been closed this week:
 
 There are also 2 tasks currently undergoing a code review by my mentors:
 
-
 * [RESTWS-829](https://issues.openmrs.org/browse/RESTWS-829)
 * [RESTWS-836](https://issues.openmrs.org/browse/RESTWS-836)
 
