@@ -30,7 +30,7 @@ There are also 2 tasks currently in progress:
 
 #### Next week
 
-In the upcoming week, I'm going to work on the two issues above. Both of them will involve creating new REST resources, as well as, adding some documentation to them.
+In the upcoming week, I'm going to work on the two issues above. Both of them will involve creating new REST resources, as well as adding some documentation to them.
 
 These tasks will be the final 2 tasks of my GSoC 2021 project, however, I will try to find some more tasks for my final week before evaluations :)
 
