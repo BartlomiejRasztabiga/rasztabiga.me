@@ -17,7 +17,7 @@ The were 5 issues closed this week:
 
 #### PRs in Code Review
 
-There is 1 task currently undergoing a code review by my mentors:
+There is 1 task currently undergoing a code review by my mentors: 
 
 * [RESTWS-830](https://issues.openmrs.org/browse/RESTWS-830)
 
