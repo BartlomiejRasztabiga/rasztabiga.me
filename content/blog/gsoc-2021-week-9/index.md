@@ -7,7 +7,7 @@ date: '2021-08-07T12:00:00.000Z'
 
 #### Issues closed.
 
-The was 1 issue closed this week:
+There was 1 issue closed this week:
 
 * [RESTWS-830](https://issues.openmrs.org/browse/RESTWS-830)
 
