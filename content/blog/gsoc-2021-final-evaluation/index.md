@@ -1,6 +1,5 @@
 ---
-title: GSoC 2021 - Final evaluation
-date: '2021-08-15T12:00:00.000Z'
+title: GSoC 2021 - Final evaluation date: '2021-08-15T12:00:00.000Z'
 ---
 
 # GSoC 2021: The REST of Administration Project Final Evaluation
@@ -9,16 +8,18 @@ date: '2021-08-15T12:00:00.000Z'
 - Primary mentor: Daniel Kayiwa
 - Backup mentor: Cliff Gita
 - Student: Bartłomiej Rasztabiga
-- Project Link: [https://wiki.openmrs.org/display/projects/GSoC+2021%3A+The+REST+of+Administration](https://wiki.openmrs.org/display/projects/GSoC+2021%3A+The+REST+of+Administration)
+- Project
+  Link: [https://wiki.openmrs.org/display/projects/GSoC+2021%3A+The+REST+of+Administration](https://wiki.openmrs.org/display/projects/GSoC+2021%3A+The+REST+of+Administration)
 
 ## Overview
 
-In order to meet the goal of migrating administration functions to the new micro frontend framework, I had to make sure all the administration functions are accessible through REST APIs.
+In order to meet the goal of migrating administration functions to the new micro frontend framework, I had to make sure
+all the administration functions are accessible through REST APIs.
 
-This task involved getting familiar with current Legacy UI administration section functionalities. Then I had to find what is the missing functionality and how it's currently handled by the UI.
+This task involved getting familiar with current Legacy UI administration section functionalities. Then I had to find
+what is the missing functionality and how it's currently handled by the UI.
 
 Then, I have added new or modified existing REST resources as well as added REST API documentation to them.
-
 
 ## Objective
 
@@ -35,13 +36,13 @@ I've worked on three OpenMRS repositories:
 Tickets closed:
 
 1. Ticket: [RESTWS-821](https://issues.openmrs.org/browse/RESTWS-821)
-   
+
    Pull Requests:
-   * [https://github.com/openmrs/openmrs-module-webservices.rest/pull/484](https://github.com/openmrs/openmrs-module-webservices.rest/pull/484)
-   * [https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140)
-    
+    * [https://github.com/openmrs/openmrs-module-webservices.rest/pull/484](https://github.com/openmrs/openmrs-module-webservices.rest/pull/484)
+    * [https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/140)
+
 2. Ticket: [RESTWS-822](https://issues.openmrs.org/browse/RESTWS-822)
-   
+
    Pull Requests:
     * [https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/141)
 
@@ -59,7 +60,7 @@ Tickets closed:
 5. Ticket: [RESTWS-842](https://issues.openmrs.org/browse/RESTWS-842)
 
    Pull Requests:
-    
+
     * [https://github.com/openmrs/openmrs-module-webservices.rest/pull/488](https://github.com/openmrs/openmrs-module-webservices.rest/pull/488)
     * [https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/148](https://github.com/openmrs/openmrs-contrib-rest-api-docs/pull/148)
 
@@ -208,12 +209,17 @@ Tickets closed:
 
 Fortunately, I've been able to complete all my work, and there are no pending items on this project.
 
-However, I do not guarantee that I've converted all the functionality of Legacy UI into REST resources, so adding any missing ones can be taken into account in the future :)
+However, I do not guarantee that I've converted all the functionality of Legacy UI into REST resources, so adding any
+missing ones can be taken into account in the future :)
 
-Also, outcomes of this task will be used by future contributors when working on admin modules of new micro frontend architecture. 
+Also, outcomes of this task will be used by future contributors when working on admin modules of new micro frontend
+architecture.
 
 ## Thoughts on GSoC
-It has been a wonderful ten weeks for me. It was great to work with OpenMRS and GSoC communities. It's been an absolute pleasure. Also, I really liked the architecture of the REST WS module that was easy to extend and to work with overall.
 
-I also want to thank OpenMRS and obviously my mentors: Daniel Kayiwa and Cliff Gita, who provided me with a lot of knowledge about the OpenMRS platform, as well as much technical help while reviewing my pull requests.
+It has been a wonderful ten weeks for me. It was great to work with OpenMRS and GSoC communities. It's been an absolute
+pleasure. Also, I really liked the architecture of the REST WS module that was easy to extend and to work with overall.
+
+I also want to thank OpenMRS and obviously my mentors: Daniel Kayiwa and Cliff Gita, who provided me with a lot of
+knowledge about the OpenMRS platform, as well as much technical help while reviewing my pull requests.
 
