@@ -198,7 +198,7 @@ Tickets closed:
 
 ## Resources
 
-* [Project proposal](https://docs.google.com/document/d/12Z3ui0y7h8gapoSuIiEJJ6jsK2RImSJCUyKfvb4LWcc/edit)
+* [Project proposal](https://docs.google.com/document/d/12Z3ui0y7h8gapoSuIiEJJ6jsK2RImSJCUyKfvb4LWcc)
 * [Project Talk thread](https://talk.openmrs.org/t/gsoc-2021-the-rest-of-administration/32663)
 * [Project Updates Talk thread](https://talk.openmrs.org/t/gsoc-2021-project-the-rest-of-administration/33518)
 * [Wiki page](https://wiki.openmrs.org/display/projects/GSoC+2021%3A+The+REST+of+Administration)
