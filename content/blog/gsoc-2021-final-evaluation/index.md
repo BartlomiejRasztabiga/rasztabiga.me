@@ -197,6 +197,10 @@ Tickets closed:
 * [week-9](https://rasztabiga.me/blog/gsoc-2021-week-9/)
 * [week-10](https://rasztabiga.me/blog/gsoc-2021-week-10/)
 
+## Video Presentation
+
+[https://www.youtube.com/watch?v=bAZXe7euYsg](https://www.youtube.com/watch?v=bAZXe7euYsg)
+
 ## Resources
 
 * [Project proposal](https://docs.google.com/document/d/12Z3ui0y7h8gapoSuIiEJJ6jsK2RImSJCUyKfvb4LWcc)
