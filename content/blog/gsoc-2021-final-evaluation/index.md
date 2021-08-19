@@ -1,5 +1,6 @@
 ---
-title: GSoC 2021 - Final evaluation date: '2021-08-15T12:00:00.000Z'
+title: GSoC 2021 - Final evaluation
+date: '2021-08-15T12:00:00.000Z'
 ---
 
 # GSoC 2021: The REST of Administration Project Final Evaluation
