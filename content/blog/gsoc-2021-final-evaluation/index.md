@@ -200,7 +200,7 @@ Tickets closed:
 
 ## Video Presentation
 
-[https://www.youtube.com/watch?v=bAZXe7euYsg](https://www.youtube.com/watch?v=bAZXe7euYsg) 
+[https://www.youtube.com/watch?v=bAZXe7euYsg](https://www.youtube.com/watch?v=bAZXe7euYsg)
 
 ## Resources
 
