@@ -7,7 +7,7 @@ module.exports = {
         // Main Site Title
         title: `Bartłomiej Rasztabiga | Full-Stack Developer`,
         // Description that goes under your name in main bio
-        description: `Backend Software Engineer`,
+        description: `Full-Stack Software Engineer`,
         // Optional: Github account URL
         github: `https://github.com/BartlomiejRasztabiga`,
         // Optional: LinkedIn account URL
