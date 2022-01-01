@@ -58,8 +58,13 @@ module.exports = {
         // Optional: List your experience, they must have `name` and `description`. `link` is optional.
         experience: [
             {
+                name: 'Symmetrical.ai',
+                description: 'Backend Engineer, January 2022 - Present',
+                link: 'https://www.linkedin.com/company/symmetrical-ai',
+            },
+            {
                 name: 'Sollers Consulting',
-                description: 'Junior Full-Stack Developer, July 2021 - Present',
+                description: 'Junior Full-Stack Developer, July 2021 - January 2022',
                 link: 'https://pl.linkedin.com/company/sollers-consulting',
             },
             {
