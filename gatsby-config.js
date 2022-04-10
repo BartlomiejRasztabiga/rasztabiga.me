@@ -15,7 +15,7 @@ module.exports = {
         // Optional: Resume PDF URL
         resume: `https://rasztabiga.me/resume.pdf`,
         // Content of the About Me section
-        about: `Full-Stack Developer (Java, Kotlin, Python, JavaScript) eager to broaden skill set in developing web applications.`,
+        about: `Full-Stack Developer (Kotlin, Java, Python, JavaScript) eager to broaden skill set in developing web applications.`,
         // Optional: List your projects, they must have `name` and `description`. `link` is optional.
         projects: [
             {
