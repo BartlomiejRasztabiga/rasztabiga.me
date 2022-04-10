@@ -99,20 +99,20 @@ module.exports = {
             {
                 name: 'Frameworks & Libraries',
                 description:
-                    'Spring, Hibernate, FastAPI, React.js, Node.js, Express.js, Angular, Android',
+                    'Spring, Hibernate, FastAPI, Next.js, React.js, Node.js, Express.js, GraphQL, Android',
             },
             {
                 name: 'Databases',
-                description: 'PostgreSQL, MySQL/MariaDB, MongoDB',
+                description: 'PostgreSQL, MySQL, MongoDB',
             },
             {
                 name: 'Other',
                 description:
-                    'Git, Docker, Kubernetes, Google Cloud Platform (GCP), CI / CD, Microservices, API design, Agile / Scrum, JUnit, Gradle, Maven, ActiveMQ, MQTT',
+                    'DDD, CQRS, Git, TDD, Docker, Kubernetes, GCP, CI/CD, Microservices, API design, Scrum, JUnit, Gradle, Maven, ActiveMQ, MQTT',
             },
             {
                 name: 'Currently learning',
-                description: 'Domain-driven design, CQRS',
+                description: 'Architectural patterns, Designing high availability & distributed systems',
             },
         ],
     },
