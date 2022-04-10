@@ -19,6 +19,12 @@ module.exports = {
         // Optional: List your projects, they must have `name` and `description`. `link` is optional.
         projects: [
             {
+                name: 'eCommute',
+                description:
+                    'Tempting new public transport users with financial benefits like tickets cashback. This app has won the 7th edition of BHL Hackathon. [Next.js, React.js, GraphQL]',
+                link: 'https://github.com/Hypest-Software/BHL-2022',
+            },
+            {
                 name: 'WIP: Fridgy',
                 description:
                     'ERP system for your fridge :) More details coming soon...',
