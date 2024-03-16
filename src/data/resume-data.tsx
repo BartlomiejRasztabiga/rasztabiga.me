@@ -67,8 +67,8 @@ export const RESUME_DATA = {
       link: "https://www.ignitesoftware.dev",
       badges: ["Remote"],
       title: "Lead Backend Engineer",
-      start: "Jul 2019",
-      end: "Jul 2020",
+      start: "Jul 2020",
+      end: "Jul 2021",
       description: "Lead team of software engineers (3-5 people), developed SaaS tool related to financial reporting. Technologies: Kotlin, Spring Boot, PostgreSQL",
     },
     {
