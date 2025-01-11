@@ -6,9 +6,9 @@ export const RESUME_DATA = {
   location: "Warsaw, Poland, CET",
   locationLink: "https://www.google.com/maps/place/Wrocław",
   about:
-    "Kotlin/Java Backend Engineer",
+    "Senior Kotlin/Java Backend Engineer",
   summary:
-    "Experienced Backend Engineer skilled in Kotlin and Java, with a specialization in designing and building distributed, scalable systems. Over 4 years of experience in working remotely with companies of different sizes and locations.",
+    "Experienced Backend Engineer skilled in Kotlin and Java, with a specialization in designing and building distributed, scalable systems. Over 5 years of experience in working with companies of different sizes and locations.",
   avatarUrl: "https://avatars.githubusercontent.com/u/8852711?v=4",
   personalWebsiteUrl: "https://rasztabiga.me",
   contact: {
@@ -40,7 +40,7 @@ export const RESUME_DATA = {
       degree: "Master's Degree in Computer Science. Specialization: Intelligent Systems",
       start: "2024",
       end: "",
-      thesis: null
+      thesis: "Application of large language models (LLMs) for generating Docker and Kubernetes configurations"
     },
   ],
   work: [
@@ -51,7 +51,7 @@ export const RESUME_DATA = {
       title: "Senior Backend Engineer",
       start: "Jan 2022",
       end: "",
-      description: "Built symmetrical products from the ground up. Ocassionaly lead teams and projects. Technologies: Kotlin, Spring Boot, MongoDB, Apache Kafka",
+      description: "Built symmetrical products from the ground up. Ocassionaly lead teams and projects. Technologies: Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS",
     },
     {
       company: "Sollers Consulting",
@@ -89,27 +89,33 @@ export const RESUME_DATA = {
     "Apache Kafka",
     "MongoDB",
     "PostgreSQL",
+    "Docker",
     "Kubernetes",
+    "AWS",
     "TypeScript",
     "React.js",
     "Remix.js",
     "Python",
-    "FastAPI"
+    "FastAPI",
+    "Node.js"
   ],
   projects: [
     {
-      title: "Run - WIP",
+      title: "Master's Thesis",
       techStack: [
-        "Side Project",
+        "Thesis Project",
         "Python",
+        "Docker",
+        "Kubernetes",
+        "AI"
       ],
-      description: "PaaS enabling all developers to easily run their apps in cloud with as few steps as possible.",
+      description: "PaaS enabling all developers to easily run their apps in cloud using LLMs for generating Docker and Kubernetes configurations.",
       link: {
-        href: "https://github.com/BartlomiejRasztabiga/run",
+        href: "https://github.com/BartlomiejRasztabiga/masters-thesis",
       },
     },
     {
-      title: "Bachelor Thesis",
+      title: "Bachelor's Thesis",
       techStack: [
         "Thesis Project",
         "Kotlin",
@@ -121,7 +127,7 @@ export const RESUME_DATA = {
       ],
       description: "Food ordering system build with microservices, DDD, CQRS and Event Sourcing in mind.",
       link: {
-        href: "https://github.com/BartlomiejRasztabiga/thesis",
+        href: "https://github.com/BartlomiejRasztabiga/bachelors-thesis",
       },
     },
     {
