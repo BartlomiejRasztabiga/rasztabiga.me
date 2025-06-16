@@ -51,7 +51,7 @@ export const RESUME_DATA = {
       title: "Senior Backend Engineer",
       start: "Jan 2022",
       end: "",
-      description: "Co-built HRIS and Payroll products from the ground up at a fast-scaling startup backed by $18.5M Series A funding. Participated in two major product pivots and helped scale engineering from 10 to 40, later adapting the architecture and team to a 15-person setup. Took leadership of several technical initiatives and team deliveries. Tech stack: Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS",
+      description: "Co-built HRIS and Payroll products from the ground up at a fast-scaling startup backed by $18.5M Series A funding. Participated in two major product pivots and supported engineering team growth and later adaptation to a more focused, lean structure. Took leadership of several technical initiatives and team deliveries. Tech stack: Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS",
     },
     {
       company: "Sollers Consulting",
@@ -69,7 +69,7 @@ export const RESUME_DATA = {
       title: "Lead Backend Engineer",
       start: "Jul 2020",
       end: "Jul 2021",
-      description: "Led 5-person team to deliver a SaaS financial reporting platform, reducing report generation time by 60%. Additionally, provided consulting support for enterprise clients integrating and customizing solutions on the Salesforce CPQ platform. Tech stack: Kotlin, Spring Boot, PostgreSQL, Kubernetes, Google Cloud Platform",
+      description: "Led a team of engineers to deliver a SaaS financial reporting platform, reducing report generation time by 60%. Additionally, provided consulting support for enterprise clients integrating and customizing solutions on the Salesforce CPQ platform. Tech stack: Kotlin, Spring Boot, PostgreSQL, Kubernetes, Google Cloud Platform",
     },
     {
       company: "Transition Technologies PSC",
