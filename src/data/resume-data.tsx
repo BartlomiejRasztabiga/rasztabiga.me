@@ -4,11 +4,11 @@ export const RESUME_DATA = {
   name: "Bartłomiej Rasztabiga",
   initials: "BR",
   location: "Warsaw, Poland, CET",
-  locationLink: "https://www.google.com/maps/place/Wrocław",
+  locationLink: "https://www.google.com/maps/place/Warszawa",
   about:
-    "Senior Kotlin/Java Backend Engineer",
+    "Backend Engineer",
   summary:
-    "Experienced Backend Engineer skilled in Kotlin and Java, with a specialization in designing and building distributed, scalable systems. Over 5 years of experience in working with companies of different sizes and locations.",
+    "Passionate backend engineer with 5+ years of experience building distributed systems in the fintech and HR tech domains. Strong advocate of DDD, CQRS and event-driven architecture. Proven leadership in small engineering teams and a track record of shipping scalable cloud-native systems.",
   avatarUrl: "https://avatars.githubusercontent.com/u/8852711?v=4",
   personalWebsiteUrl: "https://rasztabiga.me",
   contact: {
@@ -51,7 +51,7 @@ export const RESUME_DATA = {
       title: "Senior Backend Engineer",
       start: "Jan 2022",
       end: "",
-      description: "Built symmetrical products from the ground up. Ocassionaly lead teams and projects. Technologies: Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS",
+      description: "Co-built HRIS and Payroll products from the ground up at a fast-scaling startup backed by $18.5M Series A funding. Participated in two major product pivots and helped scale engineering from 10 to 40, later adapting the architecture and team to a 15-person setup. Took leadership of several technical initiatives and team deliveries. Tech stack: Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS",
     },
     {
       company: "Sollers Consulting",
@@ -60,7 +60,7 @@ export const RESUME_DATA = {
       title: "Full Stack Engineer",
       start: "Jul 2021",
       end: "Jan 2022",
-      description: "Worked on new features for internal HRIS software, used every day by all Sollers employees. Technologies: Java, Spring Boot, PostgreSQL, React.js, TypeScript",
+      description: "Developed new features for the internal HRIS platform used daily by all Sollers employees. Tech stack: Java, Spring Boot, PostgreSQL, React.js, TypeScript",
     },
     {
       company: "Ignite Software Development",
@@ -69,7 +69,7 @@ export const RESUME_DATA = {
       title: "Lead Backend Engineer",
       start: "Jul 2020",
       end: "Jul 2021",
-      description: "Lead team of software engineers (3-5 people), developed SaaS tool related to financial reporting. Technologies: Kotlin, Spring Boot, PostgreSQL",
+      description: "Led 5-person team to deliver a SaaS financial reporting platform, reducing report generation time by 60%. Additionally, provided consulting support for enterprise clients integrating and customizing solutions on the Salesforce CPQ platform. Tech stack: Kotlin, Spring Boot, PostgreSQL, Kubernetes, Google Cloud Platform",
     },
     {
       company: "Transition Technologies PSC",
@@ -78,7 +78,7 @@ export const RESUME_DATA = {
       title: "Embedded Software Engineer - Internship",
       start: "Jul 2017",
       end: "Aug 2017",
-      description: "Developed C++ framework, allowing developers to easily create simple sensor/actuator IoT devices based on ESP8266 platform. Technologies: C++, Arduino Framework",
+      description: "Developed a C++ framework to simplify the creation of IoT devices using the ESP8266 platform, enabling faster prototyping of sensor and actuator modules. Tech stack: C++, Arduino Framework",
     },
   ],
   skills: [
