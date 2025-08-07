@@ -7,6 +7,7 @@ import { Education } from "./components/Education";
 import { Summary } from "./components/Summary";
 import { Skills } from "./components/Skills";
 import { Header } from "./components/Header";
+import LatestPost from "@/components/blog/latest-post";
 
 export const metadata: Metadata = {
   title: `${RESUME_DATA.name} - Resume`,
@@ -73,6 +74,8 @@ export default function ResumePage() {
 
         <div className="space-y-8 print:space-y-4">
           <Summary summary={RESUME_DATA.summary} />
+          
+          <LatestPost />
 
           <WorkExperience work={RESUME_DATA.work} />
 

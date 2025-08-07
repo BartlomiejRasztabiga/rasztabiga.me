@@ -1,0 +1,97 @@
+---
+title: "Running JVM in Kubernetes the Right Way"
+publishedAt: "2025-06-16"
+description: "Memory limits, flags, and common pitfalls"
+---
+
+# TODO (https://softwaremill.com/jvm-and-kubernetes-walk-into-a-bar/, https://medium.com/codex/running-jvm-applications-on-kubernetes-beyond-java-jar-a095949f3e34, https://pretius.com/blog/jvm-kubernetes/)
+
+Running JVM in Kubernetes the Right Way
+
+Memory limits, flags, and common pitfalls
+
+Introduction
+
+Running Java applications in containers can lead to unexpected behavior if the JVM isn’t properly configured. Despite Kubernetes resource limits, the JVM may default to using the host’s memory, leading to out-of-memory crashes or poor performance. This post walks through how to make your JVM containers memory-aware and production-ready.
+
+The Problem: JVM Doesn’t Automatically Respect Container Limits
+
+In traditional environments, the JVM uses available system resources to determine heap size and memory behavior. In containers, this can be misleading:
+	•	JVM may think it’s running on a host with far more memory than it’s actually allowed.
+	•	Heap size may default to values that exceed the pod’s memory limit.
+	•	This leads to two types of crashes:
+	•	OutOfMemoryError (within JVM)
+	•	OOMKilled (Kubernetes force-kills the container)
+
+The Fix: Make the JVM Container-Aware
+
+For Java 8:
+
+Use:
+
+-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
+
+But this is only partial support — use with care.
+
+For Java 10+ (recommended):
+
+Use:
+
+-XX:+UseContainerSupport
+-XX:MaxRAMPercentage=75.0
+-XX:InitialRAMPercentage=25.0
+
+This configures the heap as a percentage of container-available memory, not host memory.
+
+Example Docker JVM Options:
+
+JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=25.0"
+
+Or in Dockerfile:
+
+ENV JAVA_TOOL_OPTIONS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
+Understanding OOM in Kubernetes
+
+JVM-level OOM:
+
+The JVM throws OutOfMemoryError (heap/metaspace/native), app crashes. Stack trace appears in logs.
+
+Kubernetes-level OOM:
+
+Pod is killed by the container runtime due to memory overuse. You’ll see:
+
+kubectl describe pod your-pod
+# ...
+# State: Terminated
+# Reason: OOMKilled
+
+Tip: JVM may not even throw an error — the OS kills it before that.
+
+Diagnosing:
+	•	Enable heap dumps: -XX:+HeapDumpOnOutOfMemoryError
+	•	Mount persistent volume for dump storage
+	•	Use Prometheus + Grafana to track memory usage
+
+Best Practices
+	•	Always explicitly set memory limits AND JVM heap behavior
+	•	Use MaxRAMPercentage instead of fixed Xmx if deploying to multiple environments
+	•	Keep headroom (e.g., leave ~20–30% for non-heap memory like metaspace, threads, buffers)
+	•	Match requests and limits carefully (avoid CPU throttling & GC stalls)
+
+Bonus: Advanced Tips
+	•	Use a base image with appropriate JDK and OS (e.g., avoid Alpine if you need full JDK tools)
+	•	Set thread stack size with -Xss if running high-concurrency workloads
+	•	Tune GC behavior based on container size (e.g., G1GC, ZGC for large heaps)
+
+Summary
+
+To run JVM apps reliably in Kubernetes:
+	•	Understand how the JVM sees memory
+	•	Use the right flags (MaxRAMPercentage, UseContainerSupport)
+	•	Monitor memory usage and plan headroom
+	•	Don’t blindly trust defaults — containers change everything
+
+⸻
+
+Happy tuning!
