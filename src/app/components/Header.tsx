@@ -1,4 +1,4 @@
-import { GlobeIcon, MailIcon, PhoneIcon } from "lucide-react";
+import { DownloadIcon, GlobeIcon, MailIcon, PhoneIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RESUME_DATA } from "@/data/resume-data";
@@ -87,6 +87,11 @@ function ContactButtons({ contact, personalWebsiteUrl }: ContactButtonsProps) {
           label={social.name}
         />
       ))}
+      <Button className="size-8" variant="outline" size="icon" asChild>
+        <a href="/resume.pdf" download aria-label="Download CV">
+          <DownloadIcon className="size-4" aria-hidden="true" />
+        </a>
+      </Button>
     </div>
   );
 }
