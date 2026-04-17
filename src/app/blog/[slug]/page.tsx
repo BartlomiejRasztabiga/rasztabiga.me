@@ -2,6 +2,13 @@ import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';
 import { getMDXComponent } from 'mdx-bundler/client';
+import { RabbitMQDiagram } from '@/components/blog/diagrams/RabbitMQDiagram';
+import { KafkaDiagram } from '@/components/blog/diagrams/KafkaDiagram';
+import { WorkerQueueDiagram } from '@/components/blog/diagrams/WorkerQueueDiagram';
+import { KafkaFanoutDiagram } from '@/components/blog/diagrams/KafkaFanoutDiagram';
+import { RabbitMQScalingDiagram } from '@/components/blog/diagrams/RabbitMQScalingDiagram';
+import { KafkaScalingDiagram } from '@/components/blog/diagrams/KafkaScalingDiagram';
+import { DecisionFlowchart } from '@/components/blog/diagrams/DecisionFlowchart';
 
 export const generateStaticParams = async () => {
   const posts = await getAllPosts();
@@ -45,7 +52,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
         </p>
       </div>
       <article className="prose prose-neutral dark:prose-invert max-w-none mb-10">
-        <Content />
+        <Content components={{ RabbitMQDiagram, KafkaDiagram, WorkerQueueDiagram, KafkaFanoutDiagram, RabbitMQScalingDiagram, KafkaScalingDiagram, DecisionFlowchart }} />
       </article>
     </>
   );

@@ -30,21 +30,7 @@ This single difference cascades into almost every other design decision.
 
 ### RabbitMQ
 
-```
-                    ┌──────────────┐
-                    │   Exchange   │
-                    └──────┬───────┘
-                           │
-             ┌─────────────┼─────────────┐
-             ▼             ▼             ▼
-        ┌─────────┐  ┌─────────┐  ┌─────────┐
-        │ Queue A │  │ Queue B │  │ Queue C │
-        └────┬────┘  └────┬────┘  └────┬────┘
-             │             │             │
-        ┌────▼────┐  ┌────▼────┐  ┌────▼────┐
-        │Consumer │  │Consumer │  │Consumer │
-        └─────────┘  └─────────┘  └─────────┘
-```
+<RabbitMQDiagram />
 
 Producers send messages to an **exchange**. The exchange routes messages to **queues** based on routing rules (bindings). Consumers pull from queues. The broker **pushes** messages to consumers (with prefetch limits). When a consumer acknowledges a message, it's removed from the queue.
 
@@ -56,17 +42,7 @@ RabbitMQ supports four exchange types:
 
 ### Kafka
 
-```
-Topic: "payments"
-
-Partition 0: [event1] [event2] [event5] [event7] ──────────►
-Partition 1: [event3] [event6] [event8] ────────────────────►
-Partition 2: [event4] [event9] ─────────────────────────────►
-
-Consumer Group A (billing):     reads all partitions, offset 9
-Consumer Group B (fraud):       reads all partitions, offset 6
-Consumer Group C (analytics):   reads all partitions, offset 9
-```
+<KafkaDiagram />
 
 Producers write to **topics**, which are split into **partitions** (ordered, append-only logs). Consumers **pull** messages at their own pace and track their position via **offsets**. Multiple consumer groups can read the same topic independently — each group maintains its own offset.
 
@@ -103,15 +79,7 @@ RabbitMQ shines when you need to distribute work and make sure it gets done exac
 
 The classic use case. You have a pool of workers and a stream of jobs to process. RabbitMQ distributes jobs across workers, and only one worker gets each job.
 
-```
-[Image Processing Service]
-         │
-         ▼
-    [RabbitMQ Queue]
-    /      |      \
-   ▼       ▼       ▼
-Worker1  Worker2  Worker3
-```
+<WorkerQueueDiagram />
 
 Real example: resizing uploaded images. Users upload photos, your API puts a resize job on the queue, and any available worker picks it up. If a worker crashes mid-job, RabbitMQ redelivers the unacknowledged message to another worker. Exactly what you want.
 
@@ -155,15 +123,7 @@ Example: every time a user changes their account settings, you publish an `Accou
 
 When more than one system cares about the same event, Kafka's consumer groups model is elegant. Each consumer group maintains its own offset and reads at its own pace, without blocking or competing with other groups.
 
-```
-        [Order Created Event]
-                │
-          [Kafka Topic]
-         /      |       \
-        ▼       ▼        ▼
-  [Inventory] [Email]  [Analytics]
-   Group A    Group B   Group C
-```
+<KafkaFanoutDiagram />
 
 All three services get every order event, independently. If your analytics service is down for maintenance, it just falls behind on its offset and catches up when it restarts — without affecting billing or email.
 
@@ -203,13 +163,7 @@ This also means you can add new services later that consume historical events wi
 
 RabbitMQ scales primarily by adding consumers. Got a backlog? Spin up more workers. The broker distributes work across all connected consumers automatically.
 
-```
-Normal load:                High load:
-[Queue] → Worker1           [Queue] → Worker1
-                                    → Worker2
-                                    → Worker3
-                                    → Worker4
-```
+<RabbitMQScalingDiagram />
 
 Broker-side scaling is more limited. You can cluster RabbitMQ nodes, but queues live on a single node by default (quorum queues are replicated). Federation and shovel plugins exist for cross-datacenter setups but add complexity.
 
@@ -219,16 +173,7 @@ The ceiling for a well-tuned RabbitMQ cluster is roughly in the hundreds of thou
 
 Kafka scales horizontally by adding partitions and brokers. Partitions are the unit of parallelism — you can have at most as many consumers in a group as partitions.
 
-```
-6 Partitions, 3 Brokers, 6 Consumers:
-
-Broker 1: [P0] [P1]    Consumer 1 reads P0
-Broker 2: [P2] [P3]    Consumer 2 reads P1
-Broker 3: [P4] [P5]    Consumer 3 reads P2
-                       Consumer 4 reads P3
-                       Consumer 5 reads P4
-                       Consumer 6 reads P5
-```
+<KafkaScalingDiagram />
 
 Adding a broker and rebalancing partitions scales throughput linearly. LinkedIn (who built Kafka) runs clusters processing trillions of messages per day.
 
@@ -238,34 +183,7 @@ The scaling story is genuinely better than RabbitMQ for high-throughput scenario
 
 ## How to choose: a decision guide
 
-```
-Start here
-│
-├─ Do multiple independent services need the same events?
-│   └─ YES ──► Kafka
-│
-├─ Do you need to replay events later / audit history?
-│   └─ YES ──► Kafka
-│
-├─ Is throughput > 100k msg/s?
-│   └─ YES ──► Kafka
-│
-├─ Do you need complex routing (topic patterns, header-based)?
-│   └─ YES ──► RabbitMQ
-│
-├─ Do you need request-reply patterns?
-│   └─ YES ──► RabbitMQ
-│
-├─ Is the message a task with a natural "done" state?
-│   └─ YES ──► RabbitMQ
-│
-├─ Do you need sub-millisecond latency?
-│   └─ YES ──► RabbitMQ
-│
-└─ Both could work? ──► Default to RabbitMQ for simplicity,
-                        Kafka if you expect the event log to
-                        become valuable later
-```
+<DecisionFlowchart />
 
 ---
 
