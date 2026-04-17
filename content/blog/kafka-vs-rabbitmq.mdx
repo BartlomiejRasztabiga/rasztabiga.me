@@ -1,0 +1,311 @@
+---
+title: "Kafka vs RabbitMQ: Lessons from Getting It Wrong"
+publishedAt: "2026-04-17"
+description: "A practical guide to choosing between Kafka and RabbitMQ, with real-world examples, scaling considerations, and hard-won lessons from building distributed systems."
+---
+
+When I first started working with distributed systems, I treated Kafka and RabbitMQ as interchangeable tools — both move messages from A to B, right? I picked whichever one the team had already set up, or whichever had better documentation for the language I was using.
+
+That worked, until it didn't.
+
+The first time it really bit me was on a project where we were processing payment events. We used RabbitMQ because the team knew it well. A few months in, we needed to add a fraud detection service — and it needed to analyze the last 30 days of payment history. The events were gone. Consumed, acknowledged, deleted. We had to rebuild the event history from database audit logs, which took weeks and was about as fun as it sounds.
+
+The problem wasn't RabbitMQ. The problem was that I didn't understand the *fundamental difference* in what these tools are designed to do. This post is my attempt to explain that difference clearly, so you don't have to learn it the same way I did.
+
+---
+
+## They're not the same kind of tool
+
+Before comparing features, you need to understand what each tool *is* at its core.
+
+**RabbitMQ** is a message broker. Its job is to receive messages and make sure they get delivered to the right consumer. Once a consumer processes a message and acknowledges it, RabbitMQ's job is done — the message is gone. It's like a post office: letters come in, letters go out, nobody keeps copies.
+
+**Kafka** is a distributed commit log. Its job is to durably record events in order and let any number of consumers read them at their own pace — including consumers that didn't exist when the event was written. Messages are retained for days, weeks, or forever. It's less like a post office and more like a ledger: every transaction is recorded permanently, and anyone with access can read the history.
+
+This single difference cascades into almost every other design decision.
+
+---
+
+## Architecture: how data flows
+
+### RabbitMQ
+
+```
+                    ┌──────────────┐
+                    │   Exchange   │
+                    └──────┬───────┘
+                           │
+             ┌─────────────┼─────────────┐
+             ▼             ▼             ▼
+        ┌─────────┐  ┌─────────┐  ┌─────────┐
+        │ Queue A │  │ Queue B │  │ Queue C │
+        └────┬────┘  └────┬────┘  └────┬────┘
+             │             │             │
+        ┌────▼────┐  ┌────▼────┐  ┌────▼────┐
+        │Consumer │  │Consumer │  │Consumer │
+        └─────────┘  └─────────┘  └─────────┘
+```
+
+Producers send messages to an **exchange**. The exchange routes messages to **queues** based on routing rules (bindings). Consumers pull from queues. The broker **pushes** messages to consumers (with prefetch limits). When a consumer acknowledges a message, it's removed from the queue.
+
+RabbitMQ supports four exchange types:
+- **Direct** — routes based on exact routing key match
+- **Fanout** — broadcasts to all bound queues
+- **Topic** — pattern matching on routing keys (`orders.*.created`)
+- **Headers** — routes based on message header attributes
+
+### Kafka
+
+```
+Topic: "payments"
+
+Partition 0: [event1] [event2] [event5] [event7] ──────────►
+Partition 1: [event3] [event6] [event8] ────────────────────►
+Partition 2: [event4] [event9] ─────────────────────────────►
+
+Consumer Group A (billing):     reads all partitions, offset 9
+Consumer Group B (fraud):       reads all partitions, offset 6
+Consumer Group C (analytics):   reads all partitions, offset 9
+```
+
+Producers write to **topics**, which are split into **partitions** (ordered, append-only logs). Consumers **pull** messages at their own pace and track their position via **offsets**. Multiple consumer groups can read the same topic independently — each group maintains its own offset.
+
+Kafka doesn't have routing logic. If you need a message to go to specific consumers, you either use separate topics or handle filtering in the consumer.
+
+---
+
+## Side-by-side comparison
+
+| | RabbitMQ | Kafka |
+|---|---|---|
+| **Mental model** | Post office | Ledger / audit log |
+| **Message lifetime** | Until consumed + acked | Configurable retention (hours to forever) |
+| **Consumer model** | Push (broker → consumer) | Pull (consumer reads at own pace) |
+| **Ordering** | Per-queue FIFO | Per-partition ordering |
+| **Routing** | Rich (exchanges, bindings, routing keys) | None (topic-based only) |
+| **Replay** | Not possible by default | Yes — rewind consumer offset |
+| **Multiple consumers** | Competing consumers (one wins per message) | Fan-out across consumer groups |
+| **Throughput** | ~50k–200k msg/s | Millions msg/s |
+| **Latency** | Sub-millisecond | Low milliseconds |
+| **Message size** | No enforced limit (practical: < 128MB) | Default 1MB (configurable) |
+| **Protocol** | AMQP, STOMP, MQTT | Custom TCP binary protocol |
+| **Dead letter handling** | Built-in DLX/DLQ | Manual (separate topic convention) |
+| **Persistence** | Optional per-queue/message | Always (log) |
+| **Schema enforcement** | None built-in | Schema Registry (Confluent) |
+
+---
+
+## When to use RabbitMQ
+
+RabbitMQ shines when you need to distribute work and make sure it gets done exactly once.
+
+### Task queues and work distribution
+
+The classic use case. You have a pool of workers and a stream of jobs to process. RabbitMQ distributes jobs across workers, and only one worker gets each job.
+
+```
+[Image Processing Service]
+         │
+         ▼
+    [RabbitMQ Queue]
+    /      |      \
+   ▼       ▼       ▼
+Worker1  Worker2  Worker3
+```
+
+Real example: resizing uploaded images. Users upload photos, your API puts a resize job on the queue, and any available worker picks it up. If a worker crashes mid-job, RabbitMQ redelivers the unacknowledged message to another worker. Exactly what you want.
+
+### Request-reply (RPC over messaging)
+
+RabbitMQ has a clean pattern for synchronous-style request/response over async messaging. The producer includes a `reply_to` queue and a `correlation_id`. The consumer processes and replies to that queue.
+
+Useful when you need the response but want the decoupling — for example, a service that calls a pricing engine and needs the price back before it can continue.
+
+### Complex routing logic
+
+If you need to selectively route messages to different consumers based on content, RabbitMQ's exchange types handle this natively.
+
+Example: an order service publishes `order.created`, `order.shipped`, `order.cancelled` events. Your notification service only subscribes to `order.shipped`. Your accounting service subscribes to `order.created` and `order.cancelled`. Your warehouse gets `order.created` and `order.shipped`. With a topic exchange and routing key patterns, this is a few lines of configuration.
+
+### When messages have a natural "done" state
+
+If a message represents a task with a finite lifecycle — "send this email", "resize this image", "charge this card" — and once it's done you genuinely don't care about it anymore, RabbitMQ is a great fit. The auto-deletion keeps your system clean.
+
+### Gotchas to watch for
+
+**Unacknowledged messages pile up.** If your consumer crashes or is slow, messages sit in an "unacknowledged" state and count against memory. Always set `prefetch` limits on your consumers.
+
+**Quorum queues vs classic queues.** Classic mirrored queues have known consistency issues. For production, use quorum queues (added in RabbitMQ 3.8). They're slower but safe.
+
+**You can't replay.** If a consumer has a bug and acks messages it shouldn't have, those messages are gone. Have a plan for this — usually means logging events somewhere durable separately.
+
+---
+
+## When to use Kafka
+
+Kafka shines when you need to record that something happened, and multiple systems need to know about it — including systems that don't exist yet.
+
+### Event sourcing and audit logs
+
+This was the lesson from my payment story. Any time you have business events that you might need to reprocess, replay, or analyze later, Kafka's retention makes this trivial.
+
+Example: every time a user changes their account settings, you publish an `AccountSettingsChanged` event to Kafka. Your notification service sends a confirmation email. Your security service logs the change. Six months later, you build a compliance feature that needs to know every settings change in the last year — you just rewind the consumer offset.
+
+### Multiple independent consumers
+
+When more than one system cares about the same event, Kafka's consumer groups model is elegant. Each consumer group maintains its own offset and reads at its own pace, without blocking or competing with other groups.
+
+```
+        [Order Created Event]
+                │
+          [Kafka Topic]
+         /      |       \
+        ▼       ▼        ▼
+  [Inventory] [Email]  [Analytics]
+   Group A    Group B   Group C
+```
+
+All three services get every order event, independently. If your analytics service is down for maintenance, it just falls behind on its offset and catches up when it restarts — without affecting billing or email.
+
+### High-throughput event streams
+
+If you're processing millions of events per second — clickstream data, IoT sensor readings, application logs, metrics — Kafka is built for this. RabbitMQ would need a massive cluster to match, and it still wouldn't match Kafka's sequential disk write performance.
+
+Example: a ride-sharing app tracking vehicle positions every second across 100,000 drivers. That's 100k events/second minimum, with multiple consumers (dispatch, ETA calculation, surge pricing, heatmaps). This is a Kafka workload.
+
+### Stream processing
+
+Kafka integrates naturally with stream processing frameworks (Kafka Streams, Apache Flink, Spark Streaming). You can do stateful joins, windowed aggregations, and real-time enrichment on the event stream itself.
+
+Example: detecting unusual login patterns. You stream login events to Kafka, run a Flink job that counts login attempts per user per 5-minute window, and emit fraud alerts for users who exceed a threshold. This is hard to do with RabbitMQ because you'd need external state and can't replay historical data to tune your model.
+
+### Decoupled microservices that evolve independently
+
+In a microservices architecture, services often need to react to each other's state changes. Kafka as an event backbone means services don't call each other directly — they just read from topics they care about.
+
+This also means you can add new services later that consume historical events without touching any existing code.
+
+### Gotchas to watch for
+
+**Consumer lag is silent by default.** If your consumer falls behind, Kafka doesn't yell at you — you need to monitor consumer group lag explicitly. Set up alerts before you need them.
+
+**Partition count is hard to change.** You set partitions when you create a topic, and adding partitions later breaks key-based ordering. Think carefully about partition count upfront; 30 is often a safe starting point.
+
+**Kafka is operationally heavy.** A proper Kafka cluster (even with KRaft, which removed Zookeeper) needs careful tuning of retention, replication factors, and JVM settings. Managed services (Confluent Cloud, AWS MSK, Upstash) save a lot of pain here.
+
+**Exactly-once is hard.** Kafka supports exactly-once semantics (EOS) but it requires transactional producers and careful consumer design. Most teams get away with idempotent consumers + at-least-once delivery.
+
+---
+
+## Scaling
+
+### Scaling RabbitMQ
+
+RabbitMQ scales primarily by adding consumers. Got a backlog? Spin up more workers. The broker distributes work across all connected consumers automatically.
+
+```
+Normal load:                High load:
+[Queue] → Worker1           [Queue] → Worker1
+                                    → Worker2
+                                    → Worker3
+                                    → Worker4
+```
+
+Broker-side scaling is more limited. You can cluster RabbitMQ nodes, but queues live on a single node by default (quorum queues are replicated). Federation and shovel plugins exist for cross-datacenter setups but add complexity.
+
+The ceiling for a well-tuned RabbitMQ cluster is roughly in the hundreds of thousands of messages per second. Beyond that, you're fighting the broker.
+
+### Scaling Kafka
+
+Kafka scales horizontally by adding partitions and brokers. Partitions are the unit of parallelism — you can have at most as many consumers in a group as partitions.
+
+```
+6 Partitions, 3 Brokers, 6 Consumers:
+
+Broker 1: [P0] [P1]    Consumer 1 reads P0
+Broker 2: [P2] [P3]    Consumer 2 reads P1
+Broker 3: [P4] [P5]    Consumer 3 reads P2
+                       Consumer 4 reads P3
+                       Consumer 5 reads P4
+                       Consumer 6 reads P5
+```
+
+Adding a broker and rebalancing partitions scales throughput linearly. LinkedIn (who built Kafka) runs clusters processing trillions of messages per day.
+
+The scaling story is genuinely better than RabbitMQ for high-throughput scenarios, but you pay for it in operational complexity.
+
+---
+
+## How to choose: a decision guide
+
+```
+Start here
+│
+├─ Do multiple independent services need the same events?
+│   └─ YES ──► Kafka
+│
+├─ Do you need to replay events later / audit history?
+│   └─ YES ──► Kafka
+│
+├─ Is throughput > 100k msg/s?
+│   └─ YES ──► Kafka
+│
+├─ Do you need complex routing (topic patterns, header-based)?
+│   └─ YES ──► RabbitMQ
+│
+├─ Do you need request-reply patterns?
+│   └─ YES ──► RabbitMQ
+│
+├─ Is the message a task with a natural "done" state?
+│   └─ YES ──► RabbitMQ
+│
+├─ Do you need sub-millisecond latency?
+│   └─ YES ──► RabbitMQ
+│
+└─ Both could work? ──► Default to RabbitMQ for simplicity,
+                        Kafka if you expect the event log to
+                        become valuable later
+```
+
+---
+
+## Real-world scenario mapping
+
+| Scenario | Tool | Why |
+|---|---|---|
+| Email/SMS notification queue | RabbitMQ | Task-based, one consumer, done after send |
+| Order processing pipeline | RabbitMQ | Work distribution, exactly-once processing |
+| User activity tracking | Kafka | High volume, multiple consumers (analytics, recommendations, A/B) |
+| Microservice event backbone | Kafka | Multiple consumers, replay, audit |
+| IoT sensor data | Kafka | Massive throughput, time-series analysis |
+| Image/video transcoding | RabbitMQ | Job queue, worker pool, task-based |
+| Real-time fraud detection | Kafka | Stream processing, historical context |
+| Audit log for compliance | Kafka | Retention, immutability, replay |
+| Background job scheduling | RabbitMQ | Cron-like tasks, delayed messages |
+| Change data capture (CDC) | Kafka | Debezium + Kafka is the standard pattern |
+
+---
+
+## The mistake I actually made
+
+Going back to that payment system: the team chose RabbitMQ for good reasons. We needed to distribute payment processing across workers. The messages were tasks — "process this payment". RabbitMQ was the right choice for that part.
+
+The mistake was using the same payment events as the *only* record of what happened. We didn't also write them to Kafka (or even a simple database table). When we needed historical events six weeks later, they were gone.
+
+The real lesson wasn't "use Kafka instead of RabbitMQ". It was that **these tools solve different problems**, and sometimes you need both:
+
+- **RabbitMQ** to distribute the actual payment processing work
+- **Kafka** (or just a database event log) to record that payments happened
+
+Using both in the same system isn't over-engineering — it's using the right tool for each concern. RabbitMQ handles the task execution. Kafka handles the event history. Many mature architectures do exactly this.
+
+---
+
+## Summary
+
+- **RabbitMQ** is for moving work. Messages are tasks. Once done, they're gone. Great for job queues, RPC, and complex routing.
+- **Kafka** is for recording events. Messages are facts about things that happened. Great for event streams, multiple consumers, replay, and high throughput.
+- The difference isn't throughput or reliability — it's **semantics**. Ask yourself: is this a task to be done, or an event that happened?
+- You'll often need both. That's fine.
+
+If you're starting a new project and aren't sure: RabbitMQ is simpler to operate and reason about. Reach for Kafka when you need the event log semantics — you'll know when you need it, usually when someone asks "can we replay the last month of events?" and you realize you can't.
