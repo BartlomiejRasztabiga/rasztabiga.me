@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
 import { getAllPosts, getPostBySlug } from '@/lib/mdx';
 import { getMDXComponent } from 'mdx-bundler/client';
+import { TableOfContents } from '@/components/blog/TableOfContents';
 import { RabbitMQDiagram } from '@/components/blog/diagrams/RabbitMQDiagram';
 import { KafkaDiagram } from '@/components/blog/diagrams/KafkaDiagram';
 import { WorkerQueueDiagram } from '@/components/blog/diagrams/WorkerQueueDiagram';
@@ -18,8 +19,9 @@ export const generateStaticParams = async () => {
   }));
 };
 
-export const generateMetadata = async ({ params }: { params: { slug: string } }) => {
-  const post = await getPostBySlug(params.slug).catch(() => null);
+export const generateMetadata = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug).catch(() => null);
   
   if (!post) {
     return {
@@ -34,8 +36,9 @@ export const generateMetadata = async ({ params }: { params: { slug: string } })
   };
 };
 
-export default async function BlogPost({ params }: { params: { slug: string } }) {
-  const post = await getPostBySlug(params.slug).catch(() => null);
+export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug).catch(() => null);
 
   if (!post) {
     notFound();
@@ -45,6 +48,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
 
   return (
     <>
+      <TableOfContents headings={post.headings ?? []} />
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">{post.title}</h1>
         <p className="text-sm text-muted-foreground">

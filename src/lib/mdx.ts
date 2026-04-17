@@ -6,13 +6,54 @@ import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import rehypeHighlight from 'rehype-highlight';
 
+export type TocHeading = {
+  id: string;
+  text: string;
+  level: number;
+};
+
 export type BlogPost = {
   slug: string;
   title: string;
   publishedAt: string;
   description: string;
   content?: string;
+  headings?: TocHeading[];
 };
+
+// Matches github-slugger used by rehype-slug
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+function extractHeadings(source: string): TocHeading[] {
+  const seen: Record<string, number> = {};
+  const headings: TocHeading[] = [];
+
+  for (const line of source.split('\n')) {
+    const match = line.match(/^(#{2,3})\s+(.+)$/);
+    if (!match) continue;
+
+    const level = match[1].length;
+    const text = match[2].replace(/\*\*/g, '').replace(/`([^`]+)`/g, '$1').trim();
+    let id = slugify(text);
+
+    if (seen[id] !== undefined) {
+      seen[id]++;
+      id = `${id}-${seen[id]}`;
+    } else {
+      seen[id] = 0;
+    }
+
+    headings.push({ id, text, level });
+  }
+
+  return headings;
+}
 
 const root = process.cwd();
 const POSTS_PATH = path.join(root, 'content', 'blog');
@@ -45,6 +86,7 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost> => {
     title: frontmatter.title,
     publishedAt: frontmatter.publishedAt,
     description: frontmatter.description,
+    headings: extractHeadings(source),
   };
 };
 
