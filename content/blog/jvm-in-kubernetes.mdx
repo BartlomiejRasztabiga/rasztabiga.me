@@ -41,7 +41,9 @@ Partial support, deprecated. Don't use on anything modern.
 
 **Java 10+:** `UseContainerSupport` is **enabled by default**. The JVM reads cgroup limits and respects them. This is the version where container awareness became the norm.
 
-If you're on Java 10 or later (which you almost certainly are), the JVM already knows it's in a container. You don't need to enable anything — but you still need to configure how it *uses* that knowledge.
+**Java 15+:** cgroups v2 support. Modern Linux kernels (5.10+) and Kubernetes distributions default to cgroup v2. Java 11 below 11.0.16 does not detect cgroup v2 limits and falls back to reading host memory — the exact problem you thought you'd fixed. If you're on Java 11, make sure it's at least 11.0.16.
+
+If you're on Java 17+ (which you should be), the JVM handles both cgroup v1 and v2 correctly. You don't need to configure anything — but you still need to configure how it *uses* that knowledge.
 
 ---
 
@@ -136,6 +138,8 @@ The JVM uses available CPU count to determine:
 - Compiler thread counts
 
 In a container, "available CPUs" used to mean host CPUs — same problem as memory. `UseContainerSupport` in Java 10+ fixes this too: the JVM reads CPU limits from cgroups.
+
+One behavioral change to be aware of: Java 17.0.5+ and 11.0.17+ **no longer use CPU shares** when calculating available CPU count — only CPU quota (the hard limit) is used. Earlier versions would factor in `cpu.shares` (Kubernetes `requests.cpu`), which sometimes gave the JVM a higher CPU count than the quota alone would suggest. If you're upgrading from an older patch version, GC thread counts may change.
 
 But there's a subtlety with Kubernetes CPU. Kubernetes CPU is measured in millicores. `500m` means 0.5 CPU. The JVM rounds this to a whole number of processors:
 
@@ -256,6 +260,13 @@ Total: reserved=2450MB, committed=1280MB
 
 **Note:** NMT has a small overhead (~5–10% slowdown). Use `summary` in production if needed; use `detail` only for diagnosis.
 
+**Important caveat: NMT `committed` ≠ RSS.** NMT only tracks allocations made by the HotSpot JVM itself. It does not see:
+- Memory-mapped files (`FileChannel.map()`, memory-mapped JAR reads)
+- Allocations from native libraries (e.g. Netty using JNI, RocksDB)
+- malloc allocator overhead
+
+In practice, the gap between NMT `committed` and actual RSS can be hundreds of MB. One documented real-world case showed NMT at 3.84 GiB while RSS was 4.2 GiB. If NMT looks fine but RSS is still high, `/proc/1/smaps_rollup` and `pmap -X 1` are your next tools.
+
 ### jcmd — live heap and GC info
 
 If you don't have NMT enabled, `jcmd` still gives you useful snapshots:
@@ -351,5 +362,23 @@ When you're debugging an OOMKilled pod:
 
 The JVM is well-behaved in containers once you understand the memory model. The defaults are mostly sensible on modern Java — but "mostly sensible" isn't good enough when the kernel OOMKills you at 3am.
 
-# TODO references
-# TODO reference my repo 
+---
+
+## References
+
+**Official documentation**
+- [Native Memory Tracking — Oracle Java 21 docs](https://docs.oracle.com/en/java/javase/21/vm/native-memory-tracking.html) — reference for all `jcmd VM.native_memory` output fields and NMT modes
+- [JEP 248: Make G1 the Default Garbage Collector](https://openjdk.org/jeps/248) — the JEP that switched the default GC in Java 9
+- [JEP 377: ZGC: A Scalable Low-Latency Garbage Collector (Production)](https://openjdk.org/jeps/377) — ZGC going GA in Java 15
+- [Assign Memory Resources to Containers and Pods — Kubernetes docs](https://kubernetes.io/docs/tasks/configure-pod-container/assign-memory-resource/) — how Kubernetes enforces memory limits via cgroups
+- [Java 17: What's new in OpenJDK's container awareness — Red Hat Developer](https://developers.redhat.com/articles/2022/04/19/java-17-whats-new-openjdks-container-awareness) — detailed breakdown of cgroup v1 vs v2 detection across JDK versions
+
+**Companion project**
+- [github.com/BartlomiejRasztabiga/jvm-in-containers](https://github.com/BartlomiejRasztabiga/jvm-in-containers) — runnable Spring Boot app with memory allocation endpoints, Dockerfile with correct flags, and all the diagnostic commands from this post ready to paste
+
+**Recommended reading**
+- [Java in K8s: how we've reduced memory usage without changing any code — Malt Engineering](https://blog.malt.engineering/java-in-k8s-how-weve-reduced-memory-usage-without-changing-any-code-cbef5d740ad) — real-world case study: NMT-driven investigation of native memory growth, and the surprising impact of glibc malloc arenas
+- [Off-heap memory reconnaissance — Brice Dutheil](https://blog.arkey.fr/2020/11/30/off-heap-reconnaissance/) — deep dive into every non-heap memory region with concrete measurement techniques
+- [-XX:MaxRAMPercentage is not what I wished for — Brice Dutheil](https://blog.arkey.fr/2020/10/27/maxrampercentage-is-not-what-i-wished-for/) — important subtleties in how `MaxRAMPercentage` actually behaves, including edge cases with very small containers
+- [JVM Anatomy Quark #12: Native Memory Tracking — Aleksey Shipilëv](https://shipilev.net/jvm/anatomy-quarks/12-native-memory-tracking/) — how NMT works internally, what it can and can't measure, and why `committed` ≠ RSS
+- [The No-Nonsense Guide to JVM Memory on Kubernetes — Focused.io](https://focused.io/lab/the-no-nonsense-guide-to-jvm-14-memory-on-kubernetes) — practical sizing guide with worked examples for different container sizes 
