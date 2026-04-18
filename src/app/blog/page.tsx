@@ -28,12 +28,13 @@ export default async function BlogPage() {
       ) : (
         <div className="space-y-10">
           {posts.map((post) => (
-            <PostPreview 
+            <PostPreview
               key={post.slug}
               slug={post.slug}
               title={post.title}
               description={post.description}
               publishedAt={post.publishedAt}
+              tags={post.tags}
             />
           ))}
         </div>

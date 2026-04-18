@@ -29,6 +29,7 @@ export default async function LatestPost() {
         title={latestPost.title}
         description={latestPost.description}
         publishedAt={latestPost.publishedAt}
+        tags={latestPost.tags}
       />
     </section>
   );
