@@ -1,0 +1,355 @@
+---
+title: "JVM in Kubernetes: Why Your App Keeps Getting OOMKilled"
+publishedAt: "2026-04-18"
+description: "The JVM was built before containers existed. Here's what that means in practice, why -Xmx is usually the wrong answer, and how to actually configure memory in Kubernetes."
+---
+
+The pod dies. You check the logs — nothing useful, no stack trace, no exception. You run `kubectl describe pod` and see it: `Reason: OOMKilled`. The container hit the memory limit and the kernel killed it.
+
+You add `-Xmx512m`. It helps for a day. Then it dies again. You bump it to `-Xmx768m`. Same story.
+
+If this sounds familiar, you're not tuning the wrong flag — you're using the wrong mental model. The JVM's relationship with memory is more complicated than a single number, and Kubernetes adds another layer of complexity on top.
+
+All the commands and experiments in this post have a runnable companion: **[github.com/BartlomiejRasztabiga/jvm-in-containers](https://github.com/BartlomiejRasztabiga/jvm-in-containers)** — a minimal Spring Boot app with endpoints to allocate heap memory and inspect JVM stats, a Dockerfile with the right flags, and ready-to-paste Docker commands for every diagnosis technique described here.
+
+---
+
+## The core problem: JVM was built before containers existed
+
+When a JVM starts, it reads available system memory to decide default heap sizes. On a bare-metal server or a VM, "available system memory" means the host memory — which is what you want.
+
+In a container, the JVM is still reading the **host memory**, not the container limit. If your Kubernetes node has 32GB of RAM and your pod has a 512MB limit, the JVM sees 32GB. It happily allocates a heap of 8GB (25% of 32GB by default) — which is 16x more than the container allows. The container gets OOMKilled before the JVM ever throws an `OutOfMemoryError`.
+
+This was the default behavior in Java 8. The JVM had no idea containers existed.
+
+---
+
+## Container support: the version history that matters
+
+**Java 8 (pre-131):** No container awareness at all. JVM reads host memory. `-Xmx` is your only option.
+
+**Java 8u131–8u190:** Experimental container support, opt-in:
+```bash
+-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
+```
+Partial support, deprecated. Don't use on anything modern.
+
+**Java 8u191+:** `UseContainerSupport` was backported, but **disabled by default** — you had to opt in:
+```bash
+-XX:+UseContainerSupport
+```
+
+**Java 10+:** `UseContainerSupport` is **enabled by default**. The JVM reads cgroup limits and respects them. This is the version where container awareness became the norm.
+
+If you're on Java 10 or later (which you almost certainly are), the JVM already knows it's in a container. You don't need to enable anything — but you still need to configure how it *uses* that knowledge.
+
+---
+
+## Why `-Xmx` is (usually) the wrong answer
+
+`-Xmx` sets the maximum heap size to a fixed value. It's tempting because it's simple:
+
+```bash
+java -Xmx512m -jar app.jar
+```
+
+The problems:
+
+**It doesn't travel well.** If your pod has 1GB of memory and you deploy the same image to a pod with 2GB, the JVM still caps the heap at 512MB — you're wasting half the memory you're paying for.
+
+**It only controls heap.** This is the big one. Heap is not the only memory the JVM uses. Setting `-Xmx512m` does *not* mean your JVM will use 512MB total. More on this below.
+
+**It breaks when limits change.** If someone bumps the pod's memory limit or the value drifts across environments (dev/staging/prod have different limits), `-Xmx` becomes a mismatch waiting to happen.
+
+The right alternative is percentage-based sizing:
+
+```bash
+-XX:MaxRAMPercentage=75.0
+-XX:InitialRAMPercentage=50.0
+```
+
+Now the heap is always 75% of whatever memory the container is actually allowed to use. The JVM adapts to the environment instead of being hardcoded to one.
+
+---
+
+## JVM memory is not just the heap
+
+This is the most misunderstood part. When people say "JVM memory usage", they usually mean the heap. The heap is what you tune with `-Xmx`. But the JVM uses memory in several other places:
+
+| Region | What lives here | Controlled by |
+|---|---|---|
+| **Heap** | Objects, arrays | `-Xmx` / `MaxRAMPercentage` |
+| **Metaspace** | Class metadata, loaded classes | `-XX:MaxMetaspaceSize` |
+| **Thread stacks** | One stack per thread | `-Xss` × number of threads (~1MB/thread default on 64-bit) |
+| **JIT code cache** | Compiled native code | `-XX:ReservedCodeCacheSize` (~240MB default) |
+| **Direct buffers** | Off-heap NIO buffers | `-XX:MaxDirectMemorySize` |
+| **GC overhead** | GC bookkeeping structures | Implicit, ~10–20% of heap |
+| **Native/JVM internals** | JVM itself, JNI, etc. | Not configurable |
+
+A concrete example: you set `MaxRAMPercentage=75.0` on a 1GB container. The heap gets 768MB. But:
+- Metaspace: 100–300MB depending on how many classes you load (Spring apps load a lot)
+- Thread stacks: ~1MB per thread on 64-bit Linux × 200 threads = 200MB
+- Code cache: ~240MB by default
+- Direct buffers: depends on your framework (Netty, for example, is aggressive here)
+
+Total non-heap overhead: easily 400–600MB. Add that to a 768MB heap and you're way over 1GB. OOMKilled.
+
+**The practical rule:** leave 20–30% of container memory for non-heap. For a 1GB container, heap should be 650–700MB max, not 750MB. Adjust `MaxRAMPercentage` to 65–70% rather than 75%, or set an explicit upper bound on metaspace:
+
+```bash
+-XX:MaxRAMPercentage=70.0
+-XX:MaxMetaspaceSize=256m
+```
+
+Frameworks with heavy class loading (Spring Boot, anything that uses reflection heavily) can blow past 256MB metaspace. Monitor it before setting a hard cap.
+
+---
+
+## The two kinds of OOM
+
+Understanding which OOM you're hitting matters for diagnosis:
+
+**JVM OutOfMemoryError:** the heap or metaspace is full and GC can't reclaim enough space. You get a stack trace in logs. Useful. You can tune heap size, look for leaks, analyze heap dumps.
+
+**Kubernetes OOMKilled:** the container exceeded its memory limit and the Linux OOM killer terminated the process. You get nothing in the logs — the process is just gone. `kubectl describe pod` shows `OOMKilled` in the last state.
+
+The dangerous scenario: the heap is fine, but non-heap memory pushes total usage over the limit. The JVM never throws `OutOfMemoryError`. The container just dies. No stack trace, no warning. This is why tuning only `-Xmx` and ignoring total memory usage causes grief.
+
+Enable heap dumps to at least catch heap exhaustion:
+
+```bash
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/dumps/heap.hprof
+```
+
+Mount a volume at `/dumps`, or ship dumps to object storage. You can't debug a heap dump that died with the pod.
+
+---
+
+## CPU: the forgotten dimension
+
+Memory gets all the attention, but CPU misconfiguration causes its own problems.
+
+The JVM uses available CPU count to determine:
+- Number of GC threads (G1GC: `ParallelGCThreads` = CPUs if ≤8, or `8 + (CPUs−8) × 5/8` for larger machines; `ConcGCThreads` ≈ `ParallelGCThreads / 4`)
+- Default thread pool sizes in frameworks like ForkJoinPool
+- Compiler thread counts
+
+In a container, "available CPUs" used to mean host CPUs — same problem as memory. `UseContainerSupport` in Java 10+ fixes this too: the JVM reads CPU limits from cgroups.
+
+But there's a subtlety with Kubernetes CPU. Kubernetes CPU is measured in millicores. `500m` means 0.5 CPU. The JVM rounds this to a whole number of processors:
+
+- `500m` → JVM sees 1 CPU → GC gets 1 thread
+- `1000m` → JVM sees 1 CPU → GC gets 1 thread  
+- `2000m` → JVM sees 2 CPUs → GC gets 2 threads
+
+This means a pod with `500m` CPU limit and a pod with `999m` limit look identical to the JVM — both see 1 CPU. The GC is single-threaded. For throughput-sensitive apps, this matters.
+
+**CPU throttling is worse than you think.** If you set a CPU limit of `500m` and your app needs 800m for a burst (say, during GC), the container gets throttled. GC pauses get longer. This shows up as application latency spikes that look mysterious — no OOM, no crash, just slowness. Check `container_cpu_cfs_throttled_seconds_total` in your metrics.
+
+For this reason, many teams set CPU **requests** (for scheduling) but not CPU **limits** (to avoid throttling):
+
+```yaml
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    # no cpu limit
+```
+
+Memory limits are important (you want OOMKilled rather than a pod eating all node memory). CPU limits need more thought.
+
+---
+
+## Putting it together: a sane baseline
+
+For a Spring Boot app on Java 21 with a 1GB memory limit:
+
+```yaml
+resources:
+  requests:
+    memory: "768Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+```
+
+```bash
+JAVA_TOOL_OPTIONS="\
+  -XX:MaxRAMPercentage=70.0 \
+  -XX:InitialRAMPercentage=50.0 \
+  -XX:MaxMetaspaceSize=256m \
+  -XX:+HeapDumpOnOutOfMemoryError \
+  -XX:HeapDumpPath=/dumps/heap.hprof \
+  -XX:+ExitOnOutOfMemoryError"
+```
+
+Use `JAVA_TOOL_OPTIONS` (not `JAVA_OPTS`) — it's the standard environment variable the JVM reads regardless of how it's invoked. `JAVA_OPTS` only works if your startup script explicitly passes it, which many base images don't.
+
+`-XX:+ExitOnOutOfMemoryError` makes the JVM exit cleanly on OOM instead of limping along in a degraded state. Kubernetes will restart the pod; a zombie JVM with a full heap is harder to deal with.
+
+---
+
+## GC algorithm choice
+
+One more thing worth mentioning: the default GC has changed across versions.
+
+- **Java 8:** Parallel GC (throughput-focused, stop-the-world pauses)
+- **Java 9+:** G1GC is the default (balanced, region-based) — and still is as of Java 21
+- **Java 15+:** ZGC and Shenandoah became production-ready (GA) alternatives
+
+For most Kubernetes workloads (services handling HTTP requests), G1GC is fine. If you have strict latency requirements and large heaps (4GB+), ZGC's sub-millisecond pause times are worth the overhead:
+
+```bash
+-XX:+UseZGC
+```
+
+For small containers (< 512MB heap), Serial GC or ParallelGC can actually outperform G1GC because G1's region bookkeeping has overhead that matters at small scale:
+
+```bash
+-XX:+UseSerialGC   # single-CPU containers
+```
+
+---
+
+## Diagnosing memory: what's actually eating your RAM
+
+You've set `MaxRAMPercentage`, capped metaspace, and the pod is still getting OOMKilled — or maybe RSS is just higher than you expected and you want to understand why. Here's how to find out what's consuming memory, both from a live JVM and after the fact from a heap dump.
+
+### Native Memory Tracking (NMT) — the full picture
+
+This is the most useful tool and the most underused. NMT gives you a breakdown of every memory region the JVM manages: heap, metaspace, code cache, threads, GC bookkeeping, and internal JVM structures.
+
+Enable it at startup:
+
+```bash
+-XX:NativeMemoryTracking=summary
+```
+
+Then, against a running pod:
+
+```bash
+kubectl exec -it <pod> -- jcmd 1 VM.native_memory summary
+```
+
+Output looks like this:
+
+```
+Native Memory Tracking:
+
+Total: reserved=2450MB, committed=1280MB
+-                 Java Heap (reserved=768MB, committed=768MB)
+-                     Class (reserved=312MB, committed=58MB)  ← metaspace
+-                      Code (reserved=245MB, committed=52MB)  ← JIT cache
+-                   Threads (reserved=174MB, committed=174MB) ← stacks
+-                        GC (reserved=88MB, committed=88MB)
+-                  Compiler (reserved=2MB, committed=2MB)
+-                  Internal (reserved=12MB, committed=12MB)
+-                    Symbol (reserved=24MB, committed=24MB)
+-    Native Memory Tracking (reserved=5MB, committed=5MB)
+-               Arena Chunk (reserved=2MB, committed=2MB)
+```
+
+`committed` is what's actually allocated. `reserved` is what the JVM has asked the OS to potentially give it. If your pod limit is 1GB and `committed` total is 900MB, you're close to the edge even if the heap looks fine.
+
+**Note:** NMT has a small overhead (~5–10% slowdown). Use `summary` in production if needed; use `detail` only for diagnosis.
+
+### jcmd — live heap and GC info
+
+If you don't have NMT enabled, `jcmd` still gives you useful snapshots:
+
+```bash
+# Heap summary
+kubectl exec -it <pod> -- jcmd 1 GC.heap_info
+
+# Force a GC and then dump heap stats (useful to see live object sizes)
+kubectl exec -it <pod> -- jcmd 1 GC.run
+kubectl exec -it <pod> -- jcmd 1 VM.info
+```
+
+For a quick check of heap usage over time without profiling overhead:
+
+```bash
+kubectl exec -it <pod> -- jstat -gcutil 1 5000
+```
+
+This prints GC stats every 5 seconds: survivor space usage, old gen usage, metaspace usage, GC time. Good for spotting whether old gen is creeping up (memory leak) or metaspace is growing without bound (class loading issue).
+
+### /proc — when you don't have JDK tools in the image
+
+Many production images use JRE or distroless images without `jcmd` or `jstat`. You can still get the process memory picture from the Linux kernel:
+
+```bash
+kubectl exec -it <pod> -- cat /proc/1/status | grep -i vm
+```
+
+Key fields:
+- `VmRSS` — resident set size: actual physical RAM used right now
+- `VmHWM` — high water mark: peak RSS ever reached (useful for sizing)
+- `VmPeak` — peak virtual memory size (not physical RAM — don't confuse with VmHWM)
+- `VmSwap` — memory swapped out (should be 0 in containers)
+
+```bash
+kubectl exec -it <pod> -- cat /proc/1/smaps_rollup
+```
+
+This gives a rolled-up view of all memory mappings. `Pss` (proportional set size) is the most accurate number for "how much RAM is this process actually using" accounting for shared pages.
+
+### Heap dumps — diagnosing what's inside the heap
+
+When you suspect a memory leak (heap keeps growing, GC can't reclaim it), a heap dump tells you exactly which objects are holding memory.
+
+Generate one from a running pod:
+
+```bash
+kubectl exec -it <pod> -- jcmd 1 GC.heap_dump filename=/dumps/heap.hprof
+```
+
+Or with `jmap` if you prefer:
+
+```bash
+kubectl exec -it <pod> -- jmap -dump:live,format=b,file=/dumps/heap.hprof 1
+```
+
+The `live` option runs a full GC first and only dumps reachable objects — this makes the file smaller and more useful for leak analysis.
+
+Copy it locally:
+
+```bash
+kubectl cp <pod>:/dumps/heap.hprof ./heap.hprof
+```
+
+Then open it in **Eclipse MAT** (Memory Analyzer Tool) — it's the best free tool for this. Key views:
+
+- **Dominator Tree** — shows which objects retain the most heap. The top entries here are your biggest memory consumers. If you see 500MB retained by a `HashMap` inside a cache class, you've found your leak.
+- **Leak Suspects Report** — MAT's automated analysis. Not always right, but a good starting point. It flags objects that retain an unusually large percentage of the heap.
+- **Shallow vs. Retained heap** — shallow is just the object itself; retained is everything that would be freed if this object were collected. Always look at retained heap when hunting leaks.
+
+### Tying it together
+
+When you're debugging an OOMKilled pod:
+
+1. Check `kubectl describe pod` — is it OOMKilled or a JVM `OutOfMemoryError`?
+2. If OOMKilled, check `/proc/1/status VmRSS` on a live pod — is total RSS near the limit?
+3. Run `jcmd 1 VM.native_memory summary` (if NMT enabled) to see which region is bloated.
+4. If heap is the culprit (old gen near 100%, GC overhead high), take a heap dump and open in MAT.
+5. If metaspace is the culprit (growing without bound), you likely have a classloader leak — common in apps that use dynamic class generation (Groovy, reflection-heavy frameworks, CGLIB proxies).
+6. If native/threads are the culprit, check thread count with `jcmd 1 Thread.print | grep -c "java.lang.Thread.State"` — runaway thread creation is a common source of native memory growth.
+
+---
+
+## Summary
+
+- **Java 10+ reads cgroup limits by default** via `UseContainerSupport`. You still need to configure what to do with that information.
+- **Avoid `-Xmx` with hardcoded values** in container environments. Use `MaxRAMPercentage` so the JVM adapts to whatever limits the pod has.
+- **Heap is not total JVM memory.** Metaspace, thread stacks, code cache, and direct buffers add 300–600MB on top of heap in typical Spring Boot apps. Size your containers accordingly and cap metaspace explicitly.
+- **OOMKilled with no stack trace** usually means non-heap memory overflow. Check total JVM RSS, not just heap usage.
+- **CPU throttling causes latency spikes.** Consider not setting CPU limits if your workload has burst requirements; use requests for scheduling guarantees.
+- **Use `JAVA_TOOL_OPTIONS`**, not `JAVA_OPTS`. It works everywhere.
+
+The JVM is well-behaved in containers once you understand the memory model. The defaults are mostly sensible on modern Java — but "mostly sensible" isn't good enough when the kernel OOMKills you at 3am.
+
+# TODO references
+# TODO reference my repo 
