@@ -64,8 +64,27 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
   const Content = getMDXComponent(post.content as string);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description,
+    datePublished: post.publishedAt,
+    author: {
+      "@type": "Person",
+      name: "Bartłomiej Rasztabiga",
+      url: "https://rasztabiga.me",
+    },
+    keywords: post.tags?.join(", "),
+    url: `https://rasztabiga.me/blog/${slug}`,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <TableOfContents headings={post.headings ?? []} />
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">{post.title}</h1>
