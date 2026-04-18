@@ -22,17 +22,35 @@ export const generateStaticParams = async () => {
 export const generateMetadata = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const { slug } = await params;
   const post = await getPostBySlug(slug).catch(() => null);
-  
+
   if (!post) {
     return {
-      title: 'Not Found',
-      description: 'The page you are looking for does not exist.',
+      title: "Not Found",
+      description: "The page you are looking for does not exist.",
     };
   }
 
   return {
     title: `${post.title} | Bartłomiej Rasztabiga`,
     description: post.description,
+    keywords: post.tags,
+    alternates: {
+      canonical: `https://rasztabiga.me/blog/${slug}`,
+    },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      publishedTime: post.publishedAt,
+      authors: ["Bartłomiej Rasztabiga"],
+      tags: post.tags,
+      url: `https://rasztabiga.me/blog/${slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+    },
   };
 };
 
