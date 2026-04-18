@@ -17,6 +17,7 @@ export type BlogPost = {
   title: string;
   publishedAt: string;
   description: string;
+  tags?: string[];
   content?: string;
   headings?: TocHeading[];
 };
@@ -86,6 +87,7 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost> => {
     title: frontmatter.title,
     publishedAt: frontmatter.publishedAt,
     description: frontmatter.description,
+    tags: frontmatter.tags ?? [],
     headings: extractHeadings(source),
   };
 };
@@ -103,6 +105,7 @@ export const getAllPosts = async (): Promise<BlogPost[]> => {
         title: data.title,
         publishedAt: data.publishedAt,
         description: data.description,
+        tags: data.tags ?? [],
       };
     })
   );
