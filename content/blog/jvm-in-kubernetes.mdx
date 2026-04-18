@@ -2,6 +2,7 @@
 title: "JVM in Kubernetes: Why Your App Keeps Getting OOMKilled"
 publishedAt: "2026-04-18"
 description: "The JVM was built before containers existed. Here's what that means in practice, why -Xmx is usually the wrong answer, and how to actually configure memory in Kubernetes."
+tags: ["JVM", "Kubernetes", "Java", "Spring Boot", "DevOps"]
 ---
 
 The pod dies. You check the logs — nothing useful, no stack trace, no exception. You run `kubectl describe pod` and see it: `Reason: OOMKilled`. The container hit the memory limit and the kernel killed it.
