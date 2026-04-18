@@ -30,6 +30,7 @@ export const RESUME_DATA = {
   },
   education: [
     {
+      id: "warsaw-university-of-technology-bachelors",
       school: "Warsaw University of Technology",
       degree: "Bachelor's Degree in Computer Science. Specialization: Software Engineering",
       start: "2020",
@@ -37,6 +38,7 @@ export const RESUME_DATA = {
       thesis: "Application of microservice architectures in creating scalable web applications"
     },
     {
+      id: "warsaw-university-of-technology-masters",
       school: "Warsaw University of Technology",
       degree: "Master's Degree in Computer Science. Specialization: Intelligent Systems",
       start: "2024",
