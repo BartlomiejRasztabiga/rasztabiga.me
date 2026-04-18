@@ -1,4 +1,5 @@
 import { GitHubIcon, LinkedInIcon } from "@/components/icons";
+import React from "react";
 
 export const RESUME_DATA = {
   name: "Bartłomiej Rasztabiga",
@@ -51,7 +52,17 @@ export const RESUME_DATA = {
       title: "Senior Software Engineer",
       start: "Jan 2022",
       end: "",
-      description: "Co-built HRIS and Payroll products from the ground up at a fast-scaling startup backed by $18.5M Series A funding. Participated in two major product pivots and supported engineering team growth and later adaptation to a more focused, lean structure. Took leadership of several technical initiatives and team deliveries, eventually assuming end-to-end ownership of the product as a Technical Lead, overseeing architecture, delivery, and technical direction. Leveraged AI and LLM-based agents to automate workflows and enhance internal tools and product capabilities. Tech stack: Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS, TypeScript, React.js, Mastra",
+      description: (
+        <div>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Co-built HRIS and Payroll products from the ground up at a fast-scaling startup backed by $18.5M Series A funding.</li>
+            <li>Participated in two major product pivots and supported engineering team growth and later adaptation to a more focused, lean structure.</li>
+            <li>Took leadership of several technical initiatives and team deliveries, eventually assuming end-to-end ownership of the product as a Technical Lead, overseeing architecture, delivery, and technical direction.</li>
+            <li>Leveraged AI and LLM-based agents to automate workflows and enhance internal tools and product capabilities.</li>
+          </ul>
+          <p className="mt-1"><strong>Tech stack:</strong> Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS, TypeScript, React.js, Mastra</p>
+        </div>
+      ),
     },
     {
       company: "Sollers Consulting",
@@ -60,7 +71,14 @@ export const RESUME_DATA = {
       title: "Software Engineer",
       start: "Jul 2021",
       end: "Jan 2022",
-      description: "Developed new features for the internal HRIS platform used daily by all Sollers employees, working on both backend and frontend layers. Tech stack: Java, Spring Boot, PostgreSQL, React.js, TypeScript",
+      description: (
+        <div>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Developed new features for the internal HRIS platform used daily by all Sollers employees, working on both backend and frontend layers.</li>
+          </ul>
+          <p className="mt-1"><strong>Tech stack:</strong> Java, Spring Boot, PostgreSQL, React.js, TypeScript</p>
+        </div>
+      ),
     },
     {
       company: "Ignite Software Development",
@@ -69,7 +87,15 @@ export const RESUME_DATA = {
       title: "Software Engineer",
       start: "Jul 2020",
       end: "Jul 2021",
-      description: "Led a team of engineers to deliver a SaaS financial reporting platform, reducing report generation time by 60%. Additionally, provided consulting support for enterprise clients integrating and customizing solutions on the Salesforce CPQ platform. Tech stack: Kotlin, Spring Boot, PostgreSQL, Kubernetes, Google Cloud Platform",
+      description: (
+        <div>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Led a team of engineers to deliver a SaaS financial reporting platform, reducing report generation time by 60%.</li>
+            <li>Provided consulting support for enterprise clients integrating and customizing solutions on the Salesforce CPQ platform.</li>
+          </ul>
+          <p className="mt-1"><strong>Tech stack:</strong> Kotlin, Spring Boot, PostgreSQL, Kubernetes, Google Cloud Platform</p>
+        </div>
+      ),
     },
     {
       company: "Transition Technologies PSC",
@@ -78,7 +104,14 @@ export const RESUME_DATA = {
       title: "Embedded Software Engineer - Internship",
       start: "Jul 2017",
       end: "Aug 2017",
-      description: "Developed a C++ framework to simplify the creation of IoT devices using the ESP8266 platform, enabling faster prototyping of sensor and actuator modules. Tech stack: C++, Arduino Framework",
+      description: (
+        <div>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Developed a C++ framework to simplify the creation of IoT devices using the ESP8266 platform, enabling faster prototyping of sensor and actuator modules.</li>
+          </ul>
+          <p className="mt-1"><strong>Tech stack:</strong> C++, Arduino Framework</p>
+        </div>
+      ),
     },
   ],
   skills: [
@@ -181,4 +214,4 @@ export const RESUME_DATA = {
       },
     }
   ],
-} as const;
+};

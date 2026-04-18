@@ -1,0 +1,12 @@
+# Blog post ideas
+
+- observability in 2026: the new stack for Spring Boot apps — OpenTelemetry as the standard, Micrometer Tracing, B3 vs W3C TraceContext propagation headers (which to use and why it matters at service boundaries), what to actually wire up (auto-instrumentation vs manual spans, baggage, exemplars linking traces to metrics), Loki/Tempo/Grafana vs managed solutions, what to alert on vs what to just have available
+- virtual threads (Project Loom) in practice — when they help, when they don't, pitfalls with thread-locals and pinning
+- GraalVM native image — startup time, memory footprint, tradeoffs vs JIT, what breaks
+- distributed tracing from scratch — OpenTelemetry, context propagation, what makes a good trace
+- idempotency in distributed systems — patterns, practical implementation, why it's harder than it looks
+- database connection pooling deep dive — HikariCP tuning, pool exhaustion, how to size correctly
+- Kubernetes resource requests vs limits — the full story (CPU throttling, VPA, why limits are not what you think)
+- Spring Boot startup time — what takes so long, how to measure, lazy init, AOT compilation
+- event sourcing in practice — not the theory, the operational reality (snapshots, schema evolution, projections)
+- testcontainers patterns — how to structure integration tests, reuse strategies, flakiness
