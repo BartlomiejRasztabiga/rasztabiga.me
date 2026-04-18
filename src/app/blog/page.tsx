@@ -4,6 +4,17 @@ import PostPreview from '@/components/blog/post-preview';
 export const metadata = {
   title: 'Blog | Bartłomiej Rasztabiga',
   description: 'Articles about programming and technology',
+  openGraph: {
+    title: 'Blog | Bartłomiej Rasztabiga',
+    description: 'Articles about programming and technology',
+    type: 'website',
+    url: 'https://rasztabiga.me/blog',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog | Bartłomiej Rasztabiga',
+    description: 'Articles about programming and technology',
+  },
 };
 
 export default async function BlogPage() {
