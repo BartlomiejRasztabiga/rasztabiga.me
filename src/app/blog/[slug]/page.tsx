@@ -91,6 +91,18 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         <p className="text-sm text-muted-foreground">
           {format(new Date(post.publishedAt), 'MMMM d, yyyy')}
         </p>
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {post.tags.map((tag) => (
+              <span
+                key={tag}
+                className="bg-muted rounded-full px-2 py-0.5 text-xs font-medium"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <article className="prose prose-neutral dark:prose-invert max-w-none mb-10">
         <Content components={{ RabbitMQDiagram, KafkaDiagram, WorkerQueueDiagram, KafkaFanoutDiagram, RabbitMQScalingDiagram, KafkaScalingDiagram, DecisionFlowchart }} />
