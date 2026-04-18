@@ -227,3 +227,15 @@ Using both in the same system isn't over-engineering — it's using the right to
 - You'll often need both. That's fine.
 
 If you're starting a new project and aren't sure: RabbitMQ is simpler to operate and reason about. Reach for Kafka when you need the event log semantics — you'll know when you need it, usually when someone asks "can we replay the last month of events?" and you realize you can't.
+
+---
+
+## References
+
+- [RabbitMQ Documentation](https://www.rabbitmq.com/docs) — official docs, especially the AMQP concepts guide and quorum queues
+- [Apache Kafka Documentation](https://kafka.apache.org/documentation/) — the design section is worth reading in full
+- [Kafka: The Definitive Guide](https://www.confluent.io/resources/kafka-the-definitive-guide/) — free ebook from Confluent, covers internals and production operations
+- [Jay Kreps — The Log: What every software engineer should know about real-time data's unifying abstraction](https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying) — the original essay that explains why the log is such a powerful primitive
+- [Martin Kleppmann — Designing Data-Intensive Applications](https://dataintensive.net/) — chapters 11 and 12 cover stream processing and the trade-offs between messaging systems in depth
+- [RabbitMQ vs Kafka — Lovisa Johansson (CloudAMQP)](https://www.cloudamqp.com/blog/when-to-use-rabbitmq-or-apache-kafka.html) — practical breakdown from the team behind a managed RabbitMQ service
+- [Confluent — Kafka vs RabbitMQ](https://www.confluent.io/blog/kafka-vs-rabbitmq-apache-kafka-vs-rabbitmq/) — biased toward Kafka but technically accurate
