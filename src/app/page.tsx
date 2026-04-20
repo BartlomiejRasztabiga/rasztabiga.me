@@ -12,6 +12,9 @@ import LatestPost from "@/components/blog/latest-post";
 export const metadata: Metadata = {
   title: `${RESUME_DATA.name} - Resume`,
   description: RESUME_DATA.about,
+  alternates: {
+    canonical: "https://rasztabiga.me/",
+  },
   openGraph: {
     title: `${RESUME_DATA.name} - Resume`,
     description: RESUME_DATA.about,

@@ -4,6 +4,9 @@ import PostPreview from '@/components/blog/post-preview';
 export const metadata = {
   title: 'Blog | Bartłomiej Rasztabiga',
   description: 'Articles about programming and technology',
+  alternates: {
+    canonical: "https://rasztabiga.me/blog",
+  },
   openGraph: {
     title: 'Blog | Bartłomiej Rasztabiga',
     description: 'Articles about programming and technology',
