@@ -1,4 +1,3 @@
-import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
 import { Metadata } from "next";
 
@@ -22,7 +21,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <body>{children}</body>
-      <Analytics />
     </html>
   );
 }

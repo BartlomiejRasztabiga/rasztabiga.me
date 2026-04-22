@@ -113,4 +113,4 @@ Full SEO overhaul in a single PR. The site is a Next.js static export (`output: 
 - Tag filtering / tag index pages
 - Reading time estimate
 - Comment system
-- Analytics integration beyond existing Vercel Analytics
+- Analytics integration

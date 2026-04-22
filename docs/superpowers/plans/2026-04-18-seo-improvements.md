@@ -149,7 +149,6 @@ git commit -m "feat: add tags to all blog post frontmatter"
 Add `Metadata` import and `metadata` export to `src/app/layout.tsx`. The full file becomes:
 
 ```typescript
-import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
 import { Metadata } from "next";
 
