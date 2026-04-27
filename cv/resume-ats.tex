@@ -1,0 +1,228 @@
+%% ATS-friendly resume based on sb2nov/resume template
+%% https://github.com/sb2nov/resume (MIT License)
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\input{glyphtounicode}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\pdfgentounicode=1
+
+%--- Custom commands ---%
+
+\newcommand{\resumeItem}[1]{
+  \item\small{#1 \vspace{-2pt}}
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+
+\begin{document}
+
+%--- Heading ---%
+
+\begin{center}
+  {\Huge \scshape Bart\l{}omiej Rasztabiga} \\ \vspace{4pt}
+  \small
+  +48 516 529 545 $|$
+  \href{mailto:contact@rasztabiga.me}{contact@rasztabiga.me} $|$
+  \href{https://rasztabiga.me}{rasztabiga.me} $|$
+  \href{https://github.com/BartlomiejRasztabiga}{github.com/BartlomiejRasztabiga} $|$
+  \href{https://linkedin.com/in/bartlomiej-rasztabiga}{linkedin.com/in/bartlomiej-rasztabiga}
+\end{center}
+
+%--- Summary ---%
+
+\vspace{-4pt}
+\small
+Senior Software Engineer specializing in distributed systems and event-driven architecture, with 6+ years in fintech and HR tech. Built and led end-to-end delivery of cloud-native systems at scale, eventually taking on Technical Lead ownership of architecture and technical direction. Currently applying LLM-based agents to automate workflows and enhance product capabilities.
+\vspace{4pt}
+
+%--- Experience ---%
+
+\section{Work History}
+  \resumeSubHeadingListStart
+
+    \resumeSubheading
+      {Senior Software Engineer}{Jan 2022 -- Present}
+      {\href{https://symmetrical.ai}{symmetrical.ai}}{Warsaw, Poland}
+      \resumeItemListStart
+        \resumeItem{Built HRIS and Payroll platform from 0 to 173 enterprise clients and 2,124 MAU on a distributed system of 33 microservices processing 17.6M requests/month, at a startup backed by \$18.5M Series A funding.}
+        \resumeItem{Navigated two major product pivots, maintaining system stability and team alignment throughout.}
+        \resumeItem{Took leadership of several technical initiatives and team deliveries, eventually assuming end-to-end ownership as Technical Lead of a 6-person engineering team, overseeing architecture, delivery, and technical direction.}
+        \resumeItem{Introduced LLM-based agents to automate internal workflows and enhance product capabilities.}
+        \resumeItem{\textbf{Tech stack:} Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS, TypeScript, React.js, Mastra}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Software Engineer}{Jul 2021 -- Jan 2022}
+      {\href{https://sollers.eu}{Sollers Consulting}}{Warsaw, Poland}
+      \resumeItemListStart
+        \resumeItem{Developed new features for the internal HRIS platform used daily by 1,000+ Sollers employees, working on both backend and frontend layers.}
+        \resumeItem{\textbf{Tech stack:} Java, Spring Boot, PostgreSQL, React.js, TypeScript}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Software Engineer}{Jul 2020 -- Jul 2021}
+      {\href{https://www.ignitesoftware.dev}{Ignite Software Development}}{Remote}
+      \resumeItemListStart
+        \resumeItem{Led a team of engineers to deliver a SaaS financial reporting platform, reducing report generation time by 60\%.}
+        \resumeItem{Additionally, provided consulting support for enterprise clients integrating and customizing solutions on the Salesforce CPQ platform.}
+        \resumeItem{\textbf{Tech stack:} Kotlin, Spring Boot, PostgreSQL, Kubernetes, Google Cloud Platform}
+      \resumeItemListEnd
+
+  \resumeSubHeadingListEnd
+
+%--- Skills ---%
+
+\section{Skills}
+  \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+      \textbf{Languages:} Kotlin, Java, Python, TypeScript \\
+      \textbf{Frameworks \& Libraries:} Spring Boot, FastAPI, React.js, GraphQL \\
+      \textbf{Databases \& Infrastructure:} MongoDB, PostgreSQL, Kafka, Kubernetes, AWS, Qdrant \\
+      \textbf{Architecture:} DDD, Hexagonal Architecture, Distributed Systems, CQRS, Event Sourcing \\
+      \textbf{AI \& Machine Learning:} AI agents, RAG, LLM integrations, Mastra \\
+    }}
+  \end{itemize}
+
+%--- Education ---%
+
+\section{Education}
+  \resumeSubHeadingListStart
+
+    \resumeSubheading
+      {Warsaw University of Technology}{Feb 2024 -- Sep 2026}
+      {Computer Science, Master's Degree -- Specialization: Intelligent Systems}{}
+      \resumeItemListStart
+        \resumeItem{Thesis: \textit{Application of large language models (LLMs) for generating Docker and Kubernetes configurations} [\href{https://github.com/BartlomiejRasztabiga/masters-thesis}{github}]}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Warsaw University of Technology}{Oct 2020 -- Feb 2024}
+      {Computer Science, Bachelor's Degree -- Specialization: Software Engineering}{}
+      \resumeItemListStart
+        \resumeItem{Thesis: \textit{Application of microservice architectures in creating scalable web applications} [\href{https://github.com/BartlomiejRasztabiga/bachelors-thesis}{github}]}
+      \resumeItemListEnd
+
+  \resumeSubHeadingListEnd
+
+%--- Certificates ---%
+
+\section{Certificates}
+  \resumeSubHeadingListStart
+    \resumeProjectHeading
+      {\textbf{AI\_devs 3 -- Agents Reloaded} [\href{https://link.rasztabiga.me/aidevs}{link}]}{June 2025}
+      \resumeItemListStart
+        \resumeItem{Completed a comprehensive AI engineering program focused on practical applications of LLMs, including RAG pipelines, agents, and fine-tuning techniques.}
+      \resumeItemListEnd
+    \resumeProjectHeading
+      {\textbf{EF SET English Certificate 75/100 (C2 Proficient)} [\href{https://cert.efset.org/Y6YgEc}{link}]}{January 2018}
+  \resumeSubHeadingListEnd
+
+%--- Languages ---%
+
+\section{Languages}
+  \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+      \textbf{English:} C1 Advanced (EF SET 75/100) \\
+      \textbf{Polish:} Native \\
+    }}
+  \end{itemize}
+
+%--- Publications ---%
+
+\section{Publications}
+  \resumeSubHeadingListStart
+    \item \textbf{Understanding Task Enjoyment in Software Development: A Mixed-Methods Study on Practitioners' Perspectives}
+      \resumeItemListStart
+        \resumeItem{ICSE 2026 -- Software Engineering in Practice $|$ June 2026}
+        \resumeItem{DOI: \href{https://doi.org/10.1145/3786583.3786884}{10.1145/3786583.3786884} $|$ \href{https://conf.researchr.org/details/icse-2026/icse-2026-software-engineering-in-practice/31/Understanding-Task-Enjoyment-in-Software-Development-A-Mixed-Methods-Study-on-Practi}{Conference page}}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+%--- Awards ---%
+
+\section{Awards}
+  \resumeSubHeadingListStart
+    \resumeProjectHeading{\textbf{Hackathon BEST Hacking League 7} -- Winner}{April 2022}
+    \resumeProjectHeading{\textbf{Google Summer of Code 2021} -- Contributor (OpenMRS) [\href{https://summerofcode.withgoogle.com/archive/2021/projects/6109064345419776}{link}]}{August 2021}
+    \resumeProjectHeading{\textbf{Hackathon Idea Kielce 2018} -- Winner [\href{https://smartcity.kielce.eu/smart-city-kielce-hackathon.html}{link}]}{June 2018}
+    \resumeProjectHeading{\textbf{Google Code-in 2017} -- Winner [\href{https://link.rasztabiga.me/googlecodein}{link}]}{January 2018}
+  \resumeSubHeadingListEnd
+
+%--- Volunteering ---%
+
+\section{Volunteering}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {OpenMRS Contributor}{Dec 2017 -- Sep 2021}{}{}
+      \resumeItemListStart
+        \resumeItem{Contributed to the OpenMRS platform by implementing core features and reviewing community pull requests. Helped improve healthcare access in under-resourced regions through open-source technology.}
+      \resumeItemListEnd
+  \resumeSubHeadingListEnd
+
+\end{document}

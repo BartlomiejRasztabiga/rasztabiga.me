@@ -46,5 +46,6 @@ cv/*.log
 cv/*.out
 cv/*.synctex.gz
 cv/*.log
+cv/*.txt
 
 texput.log
