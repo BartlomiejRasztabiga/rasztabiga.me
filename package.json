@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:cv": "bash scripts/build-cv.sh"
   },
   "dependencies": {
     "@apollo/server": "^5.5.0",

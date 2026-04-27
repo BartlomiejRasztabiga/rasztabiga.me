@@ -37,3 +37,14 @@ next-env.d.ts
 
 # ide
 .idea
+
+# latex build output
+cv/*.aux
+cv/*.fdb_latexmk
+cv/*.fls
+cv/*.log
+cv/*.out
+cv/*.synctex.gz
+cv/*.log
+
+texput.log

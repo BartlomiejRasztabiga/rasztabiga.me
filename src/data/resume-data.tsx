@@ -9,7 +9,7 @@ export const RESUME_DATA = {
   about:
     "Senior Software Engineer",
   summary:
-    "Passionate software engineer with 6+ years of experience building distributed systems in the fintech and HR tech domains. Strong advocate of event-driven architecture. Proven leadership in small engineering teams and a track record of shipping scalable cloud-native systems. Experienced in owning end-to-end product architecture and driving technical direction. Recently exploring and applying LLM-based agents to automate workflows and enhance system capabilities.",
+    "Senior Software Engineer specializing in distributed systems and event-driven architecture, with 6+ years in fintech and HR tech. Built and led end-to-end delivery of cloud-native systems at scale, eventually taking on Technical Lead ownership of architecture and technical direction. Currently applying LLM-based agents to automate workflows and enhance product capabilities.",
   avatarUrl: "https://avatars.githubusercontent.com/u/8852711?v=4",
   personalWebsiteUrl: "https://rasztabiga.me",
   contact: {
@@ -57,10 +57,10 @@ export const RESUME_DATA = {
       description: (
         <div>
           <ul className="list-disc list-inside space-y-1">
-            <li>Co-built HRIS and Payroll products from the ground up at a fast-scaling startup backed by $18.5M Series A funding.</li>
-            <li>Participated in two major product pivots and supported engineering team growth and later adaptation to a more focused, lean structure.</li>
-            <li>Took leadership of several technical initiatives and team deliveries, eventually assuming end-to-end ownership of the product as a Technical Lead, overseeing architecture, delivery, and technical direction.</li>
-            <li>Leveraged AI and LLM-based agents to automate workflows and enhance internal tools and product capabilities.</li>
+            <li>Built HRIS and Payroll platform from 0 to 173 enterprise clients and 2,124 MAU on a distributed system of 33 microservices processing 17.6M requests/month, at a startup backed by $18.5M Series A funding.</li>
+            <li>Navigated two major product pivots, maintaining system stability and team alignment throughout.</li>
+            <li>Took leadership of several technical initiatives and team deliveries, eventually assuming end-to-end ownership as Technical Lead of a 6-person engineering team, overseeing architecture, delivery, and technical direction.</li>
+            <li>Introduced LLM-based agents to automate internal workflows and enhance product capabilities.</li>
           </ul>
           <p className="mt-1"><strong>Tech stack:</strong> Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS, TypeScript, React.js, Mastra</p>
         </div>
@@ -76,7 +76,7 @@ export const RESUME_DATA = {
       description: (
         <div>
           <ul className="list-disc list-inside space-y-1">
-            <li>Developed new features for the internal HRIS platform used daily by all Sollers employees, working on both backend and frontend layers.</li>
+            <li>Developed new features for the internal HRIS platform used daily by 1,000+ Sollers employees, working on both backend and frontend layers.</li>
           </ul>
           <p className="mt-1"><strong>Tech stack:</strong> Java, Spring Boot, PostgreSQL, React.js, TypeScript</p>
         </div>

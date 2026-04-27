@@ -1,0 +1,198 @@
+%-------------------------
+% AltaCV-based resume
+% https://github.com/liantze/AltaCV
+%-------------------------
+\documentclass[10pt,a4paper,ragged2e,withhyper]{altacv}
+
+\geometry{left=1.25cm,right=1.25cm,top=1.5cm,bottom=1.5cm,columnsep=1.2cm}
+
+% pdflatex font
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[default]{lato}
+
+% Colors
+\definecolor{SlateGrey}{HTML}{2E2E2E}
+\definecolor{LightGrey}{HTML}{555555}
+\colorlet{name}{black}
+\colorlet{tagline}{SlateGrey}
+\colorlet{heading}{SlateGrey}
+\colorlet{headingrule}{LightGrey}
+\colorlet{subheading}{SlateGrey}
+\colorlet{accent}{SlateGrey}
+\colorlet{emphasis}{SlateGrey}
+\colorlet{body}{LightGrey}
+
+\usepackage{paracol}
+
+\renewcommand{\cvItemMarker}{{\small\textbullet}}
+\renewcommand{\cvRatingMarker}{\faCircle}
+\renewcommand{\cvtag}[1]{%
+  \tikz[baseline]\node[anchor=base,draw=body!30,rounded corners,inner xsep=1ex,inner ysep=0.75ex,text height=1.5ex,text depth=.25ex]{\small #1};
+}
+
+\newcommand{\cvsimpleitem}[2]{%
+  \begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}X r @{}}
+  \bfseries\textcolor{emphasis}{#1} & \small #2
+  \end{tabularx}\smallskip
+}
+
+\begin{document}
+
+\name{Bart\l{}omiej Rasztabiga}
+\tagline{Senior Software Engineer}
+\photoR{2.8cm}{photo}
+
+\personalinfo{
+  \phone{+48 516 529 545}
+  \email{contact@rasztabiga.me}
+  \homepage{rasztabiga.me}
+  \github{BartlomiejRasztabiga}
+  \linkedin{bartlomiej-rasztabiga}
+}
+
+\makecvheader
+
+\medskip
+{\color{body}Senior Software Engineer specializing in distributed systems and event-driven architecture, with 6+ years in fintech and HR tech. Built and led end-to-end delivery of cloud-native systems at scale, eventually taking on Technical Lead ownership of architecture and technical direction. Currently applying LLM-based agents to automate workflows and enhance product capabilities.}
+\medskip
+
+\columnratio{0.62}
+
+\begin{paracol}{2}
+
+%--- LEFT COLUMN ---%
+
+\cvsection{\faBriefcase\ Work History}
+
+\cvevent{Senior Software Engineer}{\href{https://symmetrical.ai}{symmetrical.ai}}{Jan 2022 -- Present}{Warsaw, Poland}
+\begin{itemize}
+  \item Built HRIS and Payroll platform from 0 to 173 enterprise clients and 2,124 MAU on a distributed system of 33 microservices processing 17.6M requests/month, at a startup backed by \$18.5M Series A funding.
+  \item Navigated two major product pivots, maintaining system stability and team alignment throughout.
+  \item Took leadership of several technical initiatives and team deliveries, eventually assuming end-to-end ownership as Technical Lead of a 6-person engineering team, overseeing architecture, delivery, and technical direction.
+  \item Introduced LLM-based agents to automate internal workflows and enhance product capabilities.
+\end{itemize}
+\textbf{Tech stack:} Kotlin, Spring Boot, MongoDB, Apache Kafka, Kubernetes, AWS, TypeScript, React.js, Mastra
+
+\divider
+
+\cvevent{Software Engineer}{\href{https://sollers.eu}{Sollers Consulting}}{Jul 2021 -- Jan 2022}{Warsaw, Poland}
+\begin{itemize}
+  \item Developed new features for the internal HRIS platform used daily by 1,000+ Sollers employees, working on both backend and frontend layers.
+\end{itemize}
+\textbf{Tech stack:} Java, Spring Boot, PostgreSQL, React.js, TypeScript
+
+\divider
+
+\cvevent{Software Engineer}{\href{https://www.ignitesoftware.dev}{Ignite Software Development}}{Jul 2020 -- Jul 2021}{Remote}
+\begin{itemize}
+  \item Led a team of engineers to deliver a SaaS financial reporting platform, reducing report generation time by 60\%.
+  \item Additionally, provided consulting support for enterprise clients integrating and customizing solutions on the Salesforce CPQ platform.
+\end{itemize}
+\textbf{Tech stack:} Kotlin, Spring Boot, PostgreSQL, Kubernetes, Google Cloud Platform
+
+\switchcolumn
+
+%--- PAGE 1 RIGHT ---%
+
+\cvsection{\faBolt\ Skills}
+
+\cvsubsection{Languages}
+\cvtag{Kotlin}
+\cvtag{Java}
+\cvtag{Python}
+\cvtag{TypeScript}
+
+\cvsubsection{Frameworks \& Libraries}
+\cvtag{Spring Boot}
+\cvtag{FastAPI}
+\cvtag{React.js}
+\cvtag{GraphQL}
+
+\vspace{-\medskipamount}
+\cvsubsection{Databases \& Infrastructure}
+\cvtag{MongoDB}
+\cvtag{PostgreSQL}
+\cvtag{Kafka}
+\cvtag{Kubernetes}
+\cvtag{AWS}
+\cvtag{Qdrant}
+
+\cvsubsection{Architecture}
+\cvtag{DDD}
+\cvtag{Hexagonal Architecture}\\[2pt]
+\cvtag{Distributed Systems}
+\cvtag{CQRS}\\[2pt]
+\cvtag{Event Sourcing}
+
+\cvsubsection{AI \& Machine Learning}
+\cvtag{AI agents}
+\cvtag{RAG}
+\cvtag{LLM integrations}
+\cvtag{Mastra}
+
+\cvsection{\faLanguage\ Languages}
+
+\textbf{English} -- C1 Advanced\\
+\small (EF SET 75/100)
+
+\medskip
+\textbf{Polish} -- native
+
+\cvsection{\faTrophy\ Awards}
+
+\cvsimpleitem{Hackathon BEST Hacking League 7 -- Winner}{April 2022}
+\cvsimpleitem{Google Summer of Code 2021 -- Contributor (OpenMRS)}{August 2021 · \href{https://summerofcode.withgoogle.com/archive/2021/projects/6109064345419776}{link}}
+\cvsimpleitem{Hackathon Idea Kielce 2018 -- Winner}{June 2018 · \href{https://smartcity.kielce.eu/smart-city-kielce-hackathon.html\#:~:text=Zwycięzcy\%20HACKATHON\%20Idea\%20Kielce\%202018}{link}}
+\cvsimpleitem{Google Code-in 2017 -- Winner}{January 2018 · \href{https://link.rasztabiga.me/googlecodein}{link}}
+
+\end{paracol}
+
+\newpage
+
+\begin{paracol}{2}
+
+%--- PAGE 2 LEFT ---%
+
+\cvsection{\faGraduationCap\ Education}
+
+\cvevent{Computer Science, Master's Degree}{Warsaw University of Technology}{Feb 2024 -- Sep 2026}{}
+Specialization: Intelligent Systems\\
+\small\textit{Thesis: Application of large language models (LLMs) for generating Docker and Kubernetes configurations · \href{https://github.com/BartlomiejRasztabiga/masters-thesis}{link}}
+
+\divider
+
+\cvevent{Computer Science, Bachelor's Degree}{Warsaw University of Technology}{Oct 2020 -- Feb 2024}{}
+Specialization: Software Engineering\\
+\small\textit{Thesis: Application of microservice architectures in creating scalable web applications · \href{https://github.com/BartlomiejRasztabiga/bachelors-thesis}{link}}
+
+\cvsection{\faBook\ Publications}
+
+\begin{itemize}
+  \item \textbf{Understanding Task Enjoyment in Software Development: A Mixed-Methods Study on Practitioners' Perspectives}\\
+  \textit{ICSE 2026 -- Software Engineering in Practice}\\
+  DOI: \href{https://doi.org/10.1145/3786583.3786884}{10.1145/3786583.3786884} · \href{https://conf.researchr.org/details/icse-2026/icse-2026-software-engineering-in-practice/31/Understanding-Task-Enjoyment-in-Software-Development-A-Mixed-Methods-Study-on-Practi}{ICSE 2026}
+\end{itemize}
+
+\switchcolumn
+
+%--- PAGE 2 RIGHT ---%
+
+\cvsection{\faHeart\ Volunteering}
+
+\cvevent{OpenMRS Contributor}{}{Dec 2017 -- Sep 2021}{}
+\small{Contributed to the OpenMRS platform by implementing core features and reviewing community pull requests. Helped improve healthcare access in under-resourced regions through open-source technology.}
+
+\cvsection{\faCertificate\ Certificates}
+
+\cvsimpleitem{AI\_devs 3 -- Agents Reloaded}{June 2025 · \href{https://link.rasztabiga.me/aidevs}{link}}
+
+\small{Completed a comprehensive AI engineering program focused on practical applications of large language models (LLMs), including RAG pipelines, agents, and fine-tuning techniques.}
+
+\divider
+
+\cvsimpleitem{EF SET English Certificate 75/100 (C2 Proficient)}{January 2018 · \href{https://cert.efset.org/Y6YgEc}{link}}
+
+\end{paracol}
+
+\end{document}
