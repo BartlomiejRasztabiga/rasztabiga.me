@@ -1,6 +1,14 @@
+"use client";
+
 import { DownloadIcon, GlobeIcon, MailIcon, PhoneIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { RESUME_DATA } from "@/data/resume-data";
 
 interface LocationLinkProps {
@@ -87,11 +95,30 @@ function ContactButtons({ contact, personalWebsiteUrl }: ContactButtonsProps) {
           label={social.name}
         />
       ))}
-      <Button className="size-8" variant="outline" size="icon" asChild>
-        <a href="/resume.pdf" download aria-label="Download CV">
-          <DownloadIcon className="size-4" aria-hidden="true" />
-        </a>
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            className="size-8"
+            variant="outline"
+            size="icon"
+            aria-label="Download CV"
+          >
+            <DownloadIcon className="size-4" aria-hidden="true" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <a href="/resume.pdf" download>
+              Standard CV
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <a href="/resume-ats.pdf" download>
+              ATS-friendly CV
+            </a>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
