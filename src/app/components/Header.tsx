@@ -2,7 +2,6 @@
 
 import { DownloadIcon, GlobeIcon, MailIcon, PhoneIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -201,13 +200,22 @@ export function Header() {
         />
       </div>
 
-      <Avatar className="size-28" aria-hidden="true">
-        <AvatarImage
+      <div
+        className="relative size-28 shrink-0 overflow-hidden rounded-xl"
+        aria-hidden="true"
+      >
+        <img
           alt={`${RESUME_DATA.name}'s profile picture`}
-          src={RESUME_DATA.avatarUrl}
+          src="/headshot-112.jpg"
+          srcSet="/headshot-112.jpg 112w, /headshot-224.jpg 224w"
+          sizes="112px"
+          width={112}
+          height={112}
+          className="size-full object-cover"
+          loading="eager"
+          fetchPriority="high"
         />
-        <AvatarFallback>{RESUME_DATA.initials}</AvatarFallback>
-      </Avatar>
+      </div>
     </header>
   );
 }
