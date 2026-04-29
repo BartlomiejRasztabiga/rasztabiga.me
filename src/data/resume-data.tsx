@@ -72,7 +72,7 @@ export const RESUME_DATA = {
       badges: ["Warsaw"],
       title: "Software Engineer",
       start: "Jul 2021",
-      end: "Jan 2022",
+      end: "Dec 2021",
       description: (
         <div>
           <ul className="list-disc list-inside space-y-1">
@@ -83,12 +83,30 @@ export const RESUME_DATA = {
       ),
     },
     {
+      company: "Freelance",
+      link: "",
+      badges: ["Remote"],
+      title: "Freelance Software Engineer",
+      start: "Jul 2020",
+      end: "Jun 2021",
+      description: (
+        <div>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Worked as an independent software engineer, delivering client projects remotely.</li>
+            <li>Built Ethereum smart contracts and delivered Web3 applications, including an online game, an ERC-20 token exchange, and an ERC-20 token airdrop platform.</li>
+            <li>Provided Solidity consulting, with a focus on smart contract design, security, implementation, and review.</li>
+          </ul>
+          <p className="mt-1"><strong>Tech stack:</strong> Solidity, Express.js, TypeScript, React.js, Web3 technologies</p>
+        </div>
+      ),
+    },
+    {
       company: "Ignite Software Development",
       link: "https://www.ignitesoftware.dev",
       badges: ["Remote"],
       title: "Software Engineer",
-      start: "Jul 2020",
-      end: "Jul 2021",
+      start: "Jul 2019",
+      end: "Jul 2020",
       description: (
         <div>
           <ul className="list-disc list-inside space-y-1">
@@ -100,16 +118,16 @@ export const RESUME_DATA = {
       ),
     },
     {
-      company: "Transition Technologies PSC",
+      company: "Transition Technologies PSC Sp. z o.o.",
       link: "https://ttpsc.com/pl/",
-      badges: [],
-      title: "Embedded Software Engineer - Internship",
+      badges: ["Kielce"],
+      title: "IoT Engineer Intern",
       start: "Jul 2017",
       end: "Aug 2017",
       description: (
         <div>
           <ul className="list-disc list-inside space-y-1">
-            <li>Developed a C++ framework to simplify the creation of IoT devices using the ESP8266 platform, enabling faster prototyping of sensor and actuator modules.</li>
+            <li>Built a C++ framework for the ESP8266 platform that streamlined development of IoT devices and accelerated prototyping of sensor and actuator modules.</li>
           </ul>
           <p className="mt-1"><strong>Tech stack:</strong> C++, Arduino Framework</p>
         </div>
