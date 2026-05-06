@@ -1,0 +1,510 @@
+---
+title: "Observability in 2026: The New Stack for Spring Boot Apps"
+publishedAt: "2026-05-06"
+description: "OpenTelemetry won. Here's what that means for Spring Boot apps in practice: Micrometer Tracing, W3C vs B3 headers, exemplars, Grafana's OSS stack, and what should actually page you at 3am."
+tags: ["Observability", "OpenTelemetry", "Spring Boot", "Grafana", "DevOps"]
+---
+
+If you're still treating observability as "logs over here, metrics over there, and traces if we have time," you're running an old mental model.
+
+In 2026, the big change is not that teams suddenly got better at telemetry. It's that the stack finally converged. **OpenTelemetry won the standard war**, and that matters more than which vendor UI you buy or which storage backend you run.
+
+For Spring Boot teams, that convergence has a practical consequence: you no longer need to invent your own observability strategy from scratch. There is a default shape now.
+
+It looks roughly like this:
+
+- **OpenTelemetry** as the telemetry model, protocol, and propagation standard
+- **Micrometer Observation + Micrometer Tracing** as the Spring-native instrumentation layer
+- **Prometheus-compatible metrics**, ideally with exemplars
+- **Structured logs** with trace and span correlation
+- **Tempo + Loki + Grafana** if you want an open stack, or a managed platform if you don't want to operate one
+
+That is the new baseline.
+
+The remaining hard parts are no longer "how do I emit a span?" They're:
+
+- where auto-instrumentation stops and manual instrumentation starts
+- what context should cross service boundaries
+- whether your headers are standard or legacy
+- what deserves an alert versus what should simply be explorable during an incident
+
+That's where teams still get this wrong.
+
+---
+
+## OpenTelemetry is the standard now
+
+This is the most important thing to get right conceptually.
+
+When people say "we use Datadog" or "we use Grafana" or "we use New Relic," they're usually talking about **where telemetry ends up**. That is not the same as the instrumentation standard inside the app.
+
+The standard in 2026 is OpenTelemetry:
+
+- common APIs and SDKs
+- OTLP as the default wire protocol
+- shared semantic conventions for things like `service.name`, HTTP spans, database calls, and deployment metadata
+- standard context propagation via W3C Trace Context and W3C Baggage
+
+That standardization matters because observability problems usually show up at system edges:
+
+- one service is instrumented with one library, another with something else
+- one team uses a Java agent, another uses framework-native instrumentation
+- traces pass through a gateway, queue, or third-party API
+- metrics live in one place, logs in another, traces in a third
+
+If your telemetry is built on a standard model, those boundaries are annoying. If it isn't, they become archaeology.
+
+For Spring Boot specifically, **Micrometer remains the application-facing abstraction**, and that's a good thing. Spring Boot's observability model is built around Micrometer Observation, with Micrometer Tracing bridging observations into a concrete tracer implementation such as OpenTelemetry.
+
+That's the right split:
+
+- application code talks in Spring and Micrometer terms
+- exported traces, baggage, and semantics align with OpenTelemetry
+- backends stay replaceable
+
+You should optimize for that portability.
+
+---
+
+## Micrometer Tracing is the right layer for Spring Boot
+
+Some teams still ask whether they should "use Micrometer or OpenTelemetry." In a Spring Boot app, that's the wrong framing.
+
+Use them at different layers.
+
+**Micrometer Observation** is your in-process instrumentation model. It fits Spring Boot, Actuator, and the rest of the ecosystem. It gives you timers, observations, low-cardinality tags, and the bridge into tracing.
+
+**Micrometer Tracing** is the Spring-facing tracing facade. It lets Boot auto-configure tracing without hard-coding your app to one tracer implementation.
+
+**OpenTelemetry** is the interoperability layer underneath and around that.
+
+This matters because the worst Spring Boot observability setups are the ones that mix abstractions randomly:
+
+- direct OpenTelemetry API in half the codebase
+- `@Observed` annotations somewhere else
+- manual MDC hacks in logging
+- ad hoc HTTP header handling at the edge
+
+Pick a dominant application-facing model and stick to it. In Spring Boot, that model should usually be Micrometer.
+
+Then use OpenTelemetry for:
+
+- export via OTLP
+- context propagation
+- semantic conventions
+- collector pipelines
+- compatibility with your tracing backend
+
+That split is boring. Boring is good.
+
+---
+
+## W3C vs B3: use W3C by default
+
+This is the part that still causes real production confusion.
+
+There are two header families you will most often encounter in Spring and JVM systems:
+
+- **W3C Trace Context**: `traceparent` and `tracestate`
+- **B3**: either a single `b3` header or the multi-header form like `X-B3-TraceId`, `X-B3-SpanId`, and friends
+
+If you're starting fresh in 2026, **use W3C Trace Context**.
+
+Not because B3 is broken. B3 still exists in plenty of environments, especially older Zipkin- and Brave-shaped systems. But W3C is the cross-vendor standard, and standardization is the whole point. It is what gives you the best odds that your traces survive service boundaries, proxies, SDK differences, and future migrations.
+
+W3C also matters because trace propagation is not mainly an application-internal concern. It's a **boundary concern**.
+
+Inside one service, almost any decent library can keep context together. Problems start when requests cross:
+
+- service-to-service HTTP calls
+- async messaging boundaries
+- API gateways and ingress layers
+- background jobs
+- external SaaS APIs
+- older services still speaking B3
+
+That is where traces get fragmented.
+
+### Why this matters in practice
+
+If one side emits W3C headers and the other only extracts B3, you don't get one broken span. You get **two unrelated traces** that look fine in isolation and useless together.
+
+That is a horrible failure mode because nothing crashes. You just lose causality.
+
+This gets worse when:
+
+- platform teams standardize on one header format but legacy services keep another
+- gateways preserve some headers and normalize others
+- queue consumers do custom header mapping
+- logs contain a local trace ID that never matches anything downstream
+
+So the practical guidance is simple:
+
+- **Default to W3C**
+- **Treat B3 as a compatibility mode**
+- **Be explicit about translation at boundaries**
+- **Test propagation across real service hops, not just inside one app**
+
+If you still have B3 services, decide whether you are:
+
+1. migrating them to W3C
+2. dual-reading during transition
+3. translating at the edge
+
+What you should not do is leave that behavior implicit and hope every library makes the same assumption.
+
+### Baggage is another reason W3C wins
+
+Spring Boot's tracing docs call out an operationally important detail: when you're using W3C propagation, baggage is propagated automatically. With B3, it is not. That difference alone is enough to create surprising cross-service behavior if you rely on request-scoped business context.
+
+Which brings us to the next common mistake.
+
+---
+
+## Baggage is useful, but only in small doses
+
+Baggage is one of those features that sounds magical right up until a team uses it as a distributed dumping ground.
+
+The good use case is narrow and valuable:
+
+- a low-cardinality piece of request context appears at the edge
+- downstream services need it for traces, metrics, or logs
+- passing it explicitly through every method and message would be noisy
+
+Examples:
+
+- `tenant-id`
+- `plan-tier`
+- `region`
+- an internal request classification like `interactive` vs `batch`
+
+Bad baggage candidates:
+
+- user emails
+- free-form search terms
+- payload fragments
+- high-cardinality identifiers sprayed into every signal
+- anything sensitive that might cross trust boundaries
+
+OpenTelemetry's own baggage guidance makes the risk explicit: baggage is transported in headers and may be forwarded to downstream systems you didn't intend to enrich.
+
+So the rule I recommend is:
+
+- use baggage for **small, low-cardinality, non-sensitive context**
+- keep the field list explicit
+- correlate only what helps incident response
+- never treat baggage as a substitute for domain data modeling
+
+If you need broad, rich business context everywhere, fix the event or request model. Don't smuggle it through tracing.
+
+---
+
+## What to actually wire up
+
+This is where observability discussions usually become too abstract. So here's the opinionated version.
+
+### 1. Start with auto-instrumentation
+
+For Spring Boot apps, the default should be: **let the framework and libraries do the obvious work first**.
+
+That means capturing, at minimum:
+
+- incoming HTTP server spans
+- outgoing HTTP client spans
+- database spans
+- messaging spans where applicable
+- JVM and application metrics
+- logs with trace/span correlation
+
+OpenTelemetry's Java ecosystem now gives you two practical "mostly automatic" choices:
+
+- the **Java agent**, which still covers the most libraries out of the box
+- the **OpenTelemetry Spring Boot starter**, which is a good fit when you want Spring-native configuration, native-image compatibility, or less agent-style operational overhead
+
+If you're unsure, use the simplest thing your platform can operate consistently. Standardization across services is more important than winning a local purity contest.
+
+### 2. Add manual spans only around business-significant boundaries
+
+Auto-instrumentation gives you technical topology. It does **not** automatically give you business meaning.
+
+Add manual spans or observations around things like:
+
+- `place-order`
+- `authorize-payment`
+- `generate-invoice`
+- `publish-shipment-event`
+
+Not around every helper method.
+
+Good manual instrumentation answers questions like:
+
+- which business step is slow?
+- which downstream call is inside that step?
+- did the retry happen inside the payment flow or before it?
+
+Bad manual instrumentation creates span soup.
+
+If every method is a span, none of them are useful.
+
+### 3. Use observations by default, low-level tracer APIs selectively
+
+In Spring Boot, prefer `ObservationRegistry` and `Observation` for most custom instrumentation. It aligns with metrics and traces together.
+
+Drop down to the lower-level `Tracer` API when you specifically need tracing-only behavior, like tighter baggage handling or explicit span lifecycle control.
+
+That keeps the codebase consistent and avoids prematurely hard-wiring your app to one tracing implementation.
+
+### 4. Wire logs for correlation, not as a primary query model
+
+Logs still matter, but the role has shifted.
+
+In a healthy 2026 stack:
+
+- metrics tell you **that** something is wrong
+- traces tell you **where** the latency or failure path is
+- logs tell you **what exactly happened inside that path**
+
+Logs are not your first alert surface, and they should not be your only debugging tool.
+
+They should be structured, correlated, and easy to jump into from a trace.
+
+### 5. Turn on exemplars
+
+Exemplars are one of the most underrated parts of a modern observability stack.
+
+They're the bridge between aggregated metrics and individual traces.
+
+Without exemplars, you see that the `p95` latency spike happened. Then you go hunting manually for the trace that explains it.
+
+With exemplars, the metric point can link directly to a representative trace from that interval.
+
+That changes the workflow from "the graph is bad, now start guessing" to "the graph is bad, click into the trace that explains the bad point."
+
+If you're using Prometheus-style metrics and Grafana/Tempo, this is one of the highest-leverage features you can enable.
+
+---
+
+## A short Spring Boot baseline
+
+If I were setting up a new Spring Boot service today, I would keep the application-side baseline very small:
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-tracing-bridge-otel</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-exporter-otlp</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-registry-prometheus</artifactId>
+  </dependency>
+</dependencies>
+```
+
+And a minimal config like this:
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  tracing:
+    sampling:
+      probability: 0.1
+    baggage:
+      remote-fields: tenant-id,plan-tier
+      correlation:
+        fields: tenant-id,plan-tier
+  otlp:
+    tracing:
+      endpoint: http://otel-collector:4318/v1/traces
+```
+
+Then I would add custom observations only where business flows actually matter:
+
+```java
+Observation.createNotStarted("place-order", observationRegistry)
+    .lowCardinalityKeyValue("channel", "web")
+    .observe(() -> orderService.placeOrder(command));
+```
+
+A few practical notes:
+
+- keep sampling conservative in production unless you have a reason not to
+- use the auto-configured `RestClient.Builder`, `RestTemplateBuilder`, or `WebClient.Builder`, otherwise propagation can silently disappear
+- keep baggage field names explicit and shared across services
+- set `service.name` and related resource attributes consistently across the fleet
+
+That is enough to get real value without turning observability into a side project.
+
+---
+
+## Loki + Tempo + Grafana is a strong OSS default
+
+If you want an open stack, the most coherent default in 2026 is still:
+
+- **Prometheus-compatible metrics**
+- **Loki** for logs
+- **Tempo** for traces
+- **Grafana** as the query and correlation layer
+
+Why this stack works well:
+
+- Tempo is relatively simple operationally because it is trace storage built around object storage economics
+- Grafana ties traces, logs, and metrics together well enough that the user experience feels like one system
+- Loki gives you a practical path from log lines to traces through derived fields and correlation
+- Prometheus exemplars connect metrics back to Tempo traces
+
+If you wire this correctly, you get the core navigational loops you actually need during incidents:
+
+- metric spike -> exemplar -> trace
+- trace -> related logs
+- log line -> trace ID -> trace
+
+That is the point. Not "all three pillars" as a slogan, but fast movement between them.
+
+### When I would not run this stack myself
+
+The open stack is a good default when:
+
+- you already run Grafana competently
+- you want more control over pipelines and retention
+- your team is comfortable operating collectors and storage
+- cost sensitivity matters
+
+I would choose a managed platform when:
+
+- you don't want to operate another stateful platform
+- you need faster rollout across many teams
+- compliance, retention, or enterprise support matters more than OSS flexibility
+- your bottleneck is organizational consistency, not tool capability
+
+The mistake is not choosing managed. The mistake is pretending "we run open source" is free.
+
+Operating collectors, retention tiers, cardinality control, auth, tenancy, and query performance is real work. If you don't want that work, buy it.
+
+---
+
+## What should alert you, and what should just be available
+
+Most observability stacks fail here, not in instrumentation.
+
+If everything can page, your observability stack becomes a sleep deprivation pipeline.
+
+The best alerting guidance still holds: **page on symptoms and user-impact**, not on every internal cause.
+
+That means your paging alerts should usually come from things like:
+
+- SLO burn rate
+- sustained request failure rate
+- sustained high latency on critical endpoints
+- queue age or backlog when it directly threatens user-visible flows
+- imminent hard limits that can turn into a total outage quickly
+
+Things I usually do **not** want paging by default:
+
+- one pod restarted
+- a single high CPU spike
+- a collector dropped some spans for one minute
+- an individual database query got slow once
+- error logs exceeded an arbitrary threshold
+
+Those are useful signals. They should be visible in dashboards and investigation workflows. They just should not all wake a human up.
+
+The operational split I like is:
+
+### Page on
+
+- user-visible failure
+- serious error-budget burn
+- hard-capacity threats that need human action now
+
+### Ticket or notify on
+
+- cost anomalies
+- growing cardinality
+- trace ingestion degradation
+- increasing queue lag without current user impact
+- noisy retry patterns
+
+### Keep explorable
+
+- detailed logs
+- span-level diagnostics
+- infra internals
+- deployment metadata
+- rich dimensions for ad hoc debugging
+
+This is where exemplars and trace-log correlation earn their keep. The things that do not page should still be easy to reach **once a real alert fires**.
+
+That's the difference between useful telemetry and telemetry hoarding.
+
+---
+
+## The real upgrade in 2026 is not more data
+
+The real upgrade is **coherence**.
+
+In older stacks, observability often meant separate tools, separate formats, separate teams, and separate assumptions. You could collect a lot and still not answer simple questions during an incident.
+
+The 2026 stack is better because the pieces finally line up:
+
+- Spring Boot speaks Micrometer naturally
+- Micrometer Tracing bridges into OpenTelemetry cleanly
+- OpenTelemetry gives you a standard model and propagation format
+- exemplars, trace correlation, and derived links connect the signals into one workflow
+
+So if you're building a Spring Boot service today, my default recommendation is simple:
+
+- instrument with Micrometer
+- export with OpenTelemetry
+- propagate W3C headers
+- keep baggage small
+- start with automatic instrumentation
+- add manual spans only around business-significant boundaries
+- use Grafana's OSS stack if you want control, managed observability if you don't want the operational burden
+- alert on symptoms, not on everything you can measure
+
+That's enough to build a stack that helps during incidents instead of becoming one.
+
+## References
+
+**Spring / Micrometer / OpenTelemetry**
+- [Spring Boot Observability reference](https://docs.spring.io/spring-boot/reference/actuator/observability.html)
+- [Spring Boot Tracing reference](https://docs.spring.io/spring-boot/reference/actuator/tracing.html)
+- [Micrometer Tracing reference](https://docs.micrometer.io/tracing/reference/index.html)
+- [OpenTelemetry Java instrumentation overview](https://opentelemetry.io/docs/languages/java/instrumentation/)
+- [OpenTelemetry Spring Boot starter](https://opentelemetry.io/docs/zero-code/java/spring-boot-starter/)
+- [OpenTelemetry Spring Boot starter: out-of-the-box instrumentation](https://opentelemetry.io/docs/zero-code/java/spring-boot-starter/out-of-the-box-instrumentation/)
+
+**Propagation and baggage**
+- [W3C Trace Context Recommendation](https://www.w3.org/TR/trace-context/)
+- [W3C Baggage Recommendation](https://www.w3.org/TR/baggage/)
+- [OpenTelemetry Propagators API](https://opentelemetry.io/docs/specs/otel/context/api-propagators/)
+- [OpenTelemetry Baggage concept guide](https://opentelemetry.io/docs/concepts/signals/baggage/)
+- [OpenTelemetry Baggage API spec](https://opentelemetry.io/docs/specs/otel/baggage/api/)
+
+**Semantics and correlation**
+- [OpenTelemetry semantic conventions](https://opentelemetry.io/docs/specs/semconv/)
+- [OpenTelemetry service semantic conventions](https://opentelemetry.io/docs/specs/semconv/resource/service/)
+- [OpenTelemetry deployment attributes](https://opentelemetry.io/docs/specs/semconv/registry/attributes/deployment/)
+- [Grafana exemplars documentation](https://grafana.com/docs/grafana/latest/fundamentals/exemplars/)
+- [Grafana Tempo documentation](https://grafana.com/docs/tempo/latest/)
+- [Grafana trace-to-logs configuration for Tempo and Loki](https://grafana.com/docs/grafana/latest/datasources/tempo/configure-tempo-data-source/configure-trace-to-logs/)
+
+**Alerting and SRE**
+- [Google SRE Workbook: Alerting on SLOs](https://sre.google/workbook/alerting-on-slos/)
+- [Google SRE Incident Management Guide](https://sre.google/resources/practices-and-processes/incident-management-guide/)
+- [Google SRE Workbook: Monitoring](https://sre.google/workbook/monitoring/)
+
+**Managed observability example**
+- [Grafana Cloud introduction](https://grafana.com/docs/grafana-cloud/introduction/)
