@@ -1,0 +1,320 @@
+---
+title: "Virtual Threads in Practice: When They Help, When They Don't"
+publishedAt: "2026-05-06"
+description: "Virtual threads aren't magic. They solve one problem brilliantly and create others you didn't expect. Here's what actually happens when you enable them in production — pinning, thread-locals, connection pools, and the benchmarks nobody shows you."
+tags: ["Java", "JVM", "Virtual Threads", "Project Loom", "Performance"]
+---
+
+When Project Loom landed in Java 21 as a production feature, the promise was seductive: **millions of threads, blocking I/O that just works, no more reactive callbacks**. Just flip a switch and your throughput goes through the roof.
+
+I believed it. I enabled virtual threads on a production service. It worked — for about a week. Then the application started hanging under load. No errors, no crashes, just requests that never completed. The CPU was barely used. Memory was fine. Everything looked healthy except nothing was moving.
+
+The problem wasn't virtual threads. The problem was that I didn't understand what they *actually* do under the hood, and more importantly, what they *don't* do.
+
+This post covers what I learned the hard way: when virtual threads are genuinely transformative, when they make things worse, and the subtle bugs that will eat your weekends.
+
+---
+
+## What virtual threads actually are
+
+Virtual threads are **lightweight threads scheduled by the JVM, not the OS**. A platform thread (what you've been using since Java 1) is a thin wrapper around an OS thread — 1:1 mapping, kernel scheduler, ~1MB stack. A virtual thread runs *inside* a platform thread, and when it blocks on I/O, the JVM unmounts it and schedules another virtual thread on that same platform thread carrier.
+
+The mental model:
+
+**Platform threads** = dedicated workers. Each one takes a task, does it, maybe waits for I/O (sitting idle), then takes the next task. If you have 200 threads and 190 are waiting for database responses, 190 OS threads are sitting idle consuming memory.
+
+**Virtual threads** = task-switching. The JVM has a small pool of platform threads (carriers). When a virtual thread blocks, it's parked and its carrier is freed to run something else. When the I/O completes, the virtual thread is queued for a carrier. One platform thread can handle thousands of virtual threads over its lifetime.
+
+```java
+// Platform thread — one OS thread per ExecutorService.submit()
+ExecutorService platform = Executors.newCachedThreadPool();
+
+// Virtual thread — many submissions, few OS threads
+ExecutorService virtual = Executors.newVirtualThreadPerTaskExecutor();
+```
+
+The throughput difference comes from eliminating the memory and scheduling overhead of OS threads. A virtual thread's stack starts at a few hundred bytes, grows as needed, and is allocated on the heap. You can create millions. You'll OOM with ~3,000 platform threads.
+
+---
+
+## The promise: what they actually solve
+
+Virtual threads solve exactly one problem: **I/O-bound workloads that block**. And they solve it very well.
+
+### Web servers with database calls
+
+The classic scenario. A REST endpoint receives a request, queries a database, calls another service, formats a response, returns. Most of that time is spent waiting — for the database, for the network, for serialization.
+
+With platform threads, each request holds a thread for the entire duration. A Spring Boot app with 200 threads can handle 200 concurrent requests. Anything beyond that queues up.
+
+With virtual threads, the same app can handle tens of thousands of concurrent requests because threads are only "active" when actually executing code. While waiting for the database response, the virtual thread is parked and the carrier runs something else.
+
+### External API calls
+
+Any service that fans out to multiple external APIs benefits. If you need to call five third-party services and aggregate the results, you can fire off five virtual threads in parallel and `joinAll` them:
+
+```java
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    var user = scope.fork(() -> userService.getUser(id));
+    var orders = scope.fork(() -> orderService.getOrders(id));
+    var prefs = scope.fork(() -> prefsService.getPreferences(id));
+    
+    scope.join();
+    scope.throwIfFailed();
+    
+    return new UserProfile(
+        user.get(), orders.get(), prefs.get()
+    );
+}
+```
+
+Structured concurrency (`StructuredTaskScope`) makes this clean — no manual thread management, no leaked threads if one fork fails.
+
+### What the numbers look like
+
+On a simple HTTP endpoint that makes a 50ms HTTP call and returns:
+
+| Configuration | Concurrent requests | P99 latency | Throughput |
+|---|---|---|---|
+| 200 platform threads | 200 | 52ms | ~4k req/s |
+| 200 platform threads | 5000 | 12,000ms | ~4k req/s (throttled) |
+| Virtual threads | 5000 | 55ms | ~95k req/s |
+
+The platform thread pool hits a wall at its configured size. Virtual threads scale linearly until they hit CPU, network, or database connection limits.
+
+---
+
+## When they don't help
+
+### CPU-bound workloads
+
+Virtual threads are not faster at computation. They're not magic parallelism. If your task is purely CPU-bound — image processing, cryptographic hashing, data transformation — virtual threads give you nothing. The JVM still runs on the same number of carrier threads, which default to the number of CPU cores.
+
+Worse: virtual threads add a tiny scheduling overhead. For CPU-bound work, you want `newWorkStealingPool()` or `newFixedThreadPool(n)` with platform threads, sized to your CPU count.
+
+### When your bottleneck is elsewhere
+
+If your database can handle 500 concurrent queries, it doesn't matter if your app can handle 50,000 concurrent requests. Those extra 49,500 requests will queue up at the database connection pool and timeout. Virtual threads don't make your database faster.
+
+**The bottleneck always moves, it never disappears.** Virtual threads move it from the application thread pool to whatever resource your threads are actually waiting for: the database, the filesystem, a downstream service, a lock.
+
+---
+
+## The gotchas: what breaks
+
+### Thread-local variables
+
+Thread-locals are the most dangerous trap with virtual threads.
+
+The JVM **copies** thread-local values when a virtual thread is mounted on a carrier. But here's the catch: if you set a thread-local *during* execution, that value is visible only while that virtual thread runs. If your code expects thread-local state to persist across multiple mount/unmount cycles (which happens transparently during I/O), it will work — the thread-local is attached to the virtual thread, not the carrier.
+
+The real problem is **thread-local leakage and memory usage**. Every virtual thread that sets a thread-local value holds that value for its entire lifetime. With platform threads, you had ~200 thread-local maps. With virtual threads, you might have 50,000. If each thread-local holds a `SimpleDateFormat` or a 10KB buffer, that's 500MB of memory you didn't account for.
+
+```java
+// This is fine with 200 platform threads:
+private static final ThreadLocal<SimpleDateFormat> formatter =
+    ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd"));
+
+// With 50,000 virtual threads: 50,000 SimpleDateFormat instances.
+// That's not fine.
+```
+
+**The fix:** identify all thread-locals in your application and its dependencies. Common offenders:
+
+- `SimpleDateFormat` (use `DateTimeFormatter` instead — it's thread-safe)
+- MDC (SLF4J's mapped diagnostic context — used for logging correlation)
+- Spring's `RequestContextHolder` and `SecurityContextHolder`
+- Database connection context holders
+- Any `ThreadLocal` cache or buffer pool
+
+For MDC specifically, Logback and Log4j2 have been updated to work with virtual threads, but verify your version. Older versions will silently lose correlation IDs when virtual threads unmount.
+
+For other thread-locals: the best approach is to replace them with explicit context objects passed through method parameters. Yes, it's more verbose. That's the point — thread-locals are implicit global state, and they become exponentially harder to reason about with millions of concurrent threads.
+
+### Pinning: when virtual threads block carriers
+
+Virtual threads can be **pinned** to their carrier thread. While pinned, the carrier cannot run any other virtual thread. This happens in two situations:
+
+1. **Inside a `synchronized` block or method** that performs a blocking operation
+2. **Inside a `native` method** that performs a blocking operation
+
+The `synchronized` pinning is the killer. The JVM cannot safely unmount a virtual thread that's inside a `synchronized` block because the JVM's monitor implementation relies on OS-level thread identity. If the virtual thread unmounts while holding a monitor, and a different carrier later tries to acquire that same monitor, the lock state is inconsistent.
+
+```java
+// BAD: synchronized + blocking I/O = pinning
+public synchronized String getData() {
+    return httpClient.getString(url); // Virtual thread is PINNED here
+}
+
+// GOOD: ReentrantLock + blocking I/O = unmounts normally
+private final Lock lock = new ReentrantLock();
+public String getData() {
+    lock.lock();
+    try {
+        return httpClient.getString(url); // Virtual thread UNMOUNTS here
+    } finally {
+        lock.unlock();
+    }
+}
+```
+
+The practical impact depends on how long the pinned section lasts. A `synchronized` block that does 2ms of pure computation is fine — the carrier is pinned for 2ms, negligible. A `synchronized` block that waits for a 500ms database response pins the carrier for 500ms. If you have enough pinned virtual threads, you can exhaust all carrier threads and your application stalls.
+
+This is exactly what happened to me in production. A legacy codebase had `synchronized` methods wrapping database calls. It worked fine with 200 platform threads because there were always enough threads available. With virtual threads and thousands of concurrent requests, we hit the carrier limit and everything froze.
+
+**Detecting pinning:** run with `-Djdk.tracePinnedThreads=full`. The JVM will print a stack trace every time a virtual thread is pinned:
+
+```
+Thread[#56,ForkJoinPool-1-worker-1,5,CarrierThreads]
+    at java.base/java.net.SocketInputStream.socketRead0(Native Method)
+    at java.base/java.net.SocketInputStream.read(SocketInputStream.java:150)
+    at com.example.MyService$$Lambda/0x0000000800c01400.call(Unknown Source)
+    at java.base/jdk.internal.vm.Continuation.yield0(Continuation.java:380)
+```
+
+**The fix:** replace `synchronized` with `ReentrantLock` in any code path that does blocking I/O. Or, more practically, use JFR's `jdk.VirtualThreadPinned` event in production — it fires automatically when a virtual thread blocks while pinned for longer than 20ms. Print recorded events with:
+
+```bash
+jfr print --events jdk.VirtualThreadPinned recording.jfr
+```
+
+See [Virtual Threads — Oracle Java 21 docs](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html) for the full list of JFR events and how to configure them.
+
+### Native methods
+
+Any native method that blocks will pin the virtual thread. This includes:
+
+- File I/O through `java.io` (not `java.nio`)
+- `InetAddress.getByName()` (DNS resolution)
+- Any JNI code that performs blocking operations
+
+The DNS resolution issue is particularly sneaky. Every HTTP call starts with DNS lookup, which uses a native method. If DNS is slow (corporate networks, misconfigured resolvers), you'll pin carriers on DNS lookups.
+
+The fix is less straightforward. For file I/O, use `java.nio.file` and `AsynchronousFileChannel`. For DNS, there's no good workaround yet — the JDK team is working on async DNS, but it's not available as of Java 21.
+
+### Connection pools
+
+Connection pools are sized for platform threads. HikariCP defaults to 10 connections. That's fine when you have 10 platform threads and each holds a connection briefly. But with virtual threads, if you suddenly have 5,000 concurrent requests all trying to get a database connection, they'll all block waiting for one of those 10 connections.
+
+The virtual threads handle this gracefully (they unmount while waiting), but the result is that your latency is now dominated by connection pool wait time.
+
+**The fix:** size your connection pool for the *actual* concurrent database load, not for the thread pool size. The right number depends on your database's capacity — usually 20–50 connections per service instance for most workloads. Monitor HikariCP's `PendingThreads` metric to see if threads are queuing for connections.
+
+```yaml
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 30  # Not 10, not 5000. Measure it.
+      connection-timeout: 2000  # Fail fast if pool is exhausted
+```
+
+### `java.util.concurrent` traps
+
+Most `java.util.concurrent` utilities work fine with virtual threads. But:
+
+**`Semaphore`** — works correctly, but if you use it as a rate limiter, be aware that virtual threads can exhaust it much faster than platform threads. A semaphore that limited concurrency to 200 platform threads will now see thousands of threads competing for 200 permits.
+
+**`CountDownLatch` and `CyclicBarrier`** — work correctly. Virtual threads block and unmount normally.
+
+**`ThreadLocalRandom`** — works correctly with virtual threads. No issues.
+
+**`ExecutorService` nesting** — submitting virtual threads to a virtual-thread executor creates nested virtual threads, which is fine but usually pointless. The inner virtual threads still share the same carrier pool.
+
+---
+
+## Enabling virtual threads in Spring Boot 3.2+
+
+Spring Boot 3.2+ has built-in support. It's almost insultingly simple:
+
+```yaml
+spring:
+  threads:
+    virtual:
+      enabled: true
+```
+
+That's it. Tomcat, Undertow, and Jetty all support virtual threads for request handling. Spring's `@Async` methods also use virtual threads when enabled.
+
+But "it works" is different from "it works correctly in production". Here's what to check:
+
+### Audit your dependencies
+
+Any library that uses `ThreadLocal` or `synchronized` + blocking I/O is a potential problem. Common culprits:
+
+- **Hibernate** — uses thread-locals for session management. Spring Boot handles this correctly in 3.2+, but verify your version.
+- **Logback/Log4j2** — MDC thread-locals. Versions released after mid-2023 are virtual-thread-aware.
+- **Jackson** — `ObjectMapper` is thread-safe, but some modules use thread-locals internally. Verify.
+- **Any pooling library** — connection pools, HTTP client pools. They need to handle sudden concurrency spikes.
+
+### Configure observability
+
+Virtual threads change what metrics matter:
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+```
+
+Watch these metrics:
+- `hikaricp.connections.pending` — are requests queuing for DB connections?
+- `jvm.threads.live` — total live threads (will be much higher with virtual threads)
+- `jvm.threads.daemon` — daemon thread count
+- Custom: track `ThreadPinnedEvent` via JFR in production
+
+---
+
+## A practical migration checklist
+
+1. **Enable `-Djdk.tracePinnedThreads=full`** in staging. Run your integration tests. Look for pinned thread warnings.
+2. **Audit thread-locals**. Search for `ThreadLocal` in your codebase and transitive dependencies. Replace or verify.
+3. **Replace `synchronized` with `ReentrantLock`** in any method that does blocking I/O.
+4. **Size connection pools** for expected concurrent database load, not thread count.
+5. **Set timeouts** everywhere. Virtual threads can create a false sense of safety — requests don't fail, they just wait. Add HTTP timeouts, DB timeouts, and overall request deadlines.
+6. **Load test with realistic concurrency**. Virtual threads will accept 50,000 concurrent requests. Your database will not. Find the real bottleneck before production.
+7. **Check dependency versions**. Ensure Spring Boot 3.2+, Logback 1.4.11+, Log4j2 2.20+, HikariCP 5.0+.
+8. **Monitor carrier thread utilization**. If all carriers are busy (pinned or running), virtual threads queue up. This shows up as increased latency with low CPU usage.
+
+---
+
+## Summary
+
+- **Virtual threads excel at I/O-bound workloads** — web servers, API calls, anything that spends most of its time waiting. They let you handle thousands of concurrent requests with minimal resources.
+- **Virtual threads do nothing for CPU-bound work** — they add overhead, not speed. Use fixed-size platform thread pools for computation.
+- **`synchronized` blocks that block I/O will pin carriers** — this is the #1 cause of production failures. Use `ReentrantLock` instead.
+- **Thread-locals multiply with virtual threads** — every virtual thread gets its own copy. Audit and replace them. `SimpleDateFormat` and MDC are the most common offenders.
+- **Connection pools become the new bottleneck** — size them correctly, set timeouts, monitor queue depth.
+- **Native methods can pin** — DNS resolution, blocking file I/O. Use NIO where available.
+- **The bottleneck doesn't disappear, it moves** — from thread count to database connections, network bandwidth, or downstream service capacity.
+
+Virtual threads are the biggest change to Java concurrency since `java.util.concurrent` in Java 5. They're genuinely great for the workloads they target. But "great" doesn't mean "free" — understanding the trade-offs before you flip the switch is what separates a successful migration from a 3am page.
+
+---
+
+## References
+
+**Official documentation**
+- [JEP 444: Virtual Threads](https://openjdk.org/jeps/444) — the specification, design rationale, and migration notes
+- [Virtual Threads — Oracle Java 21 docs](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html) — official guide with examples and best practices
+- [JEP 453: Structured Concurrency (Preview)](https://openjdk.org/jeps/453) — the companion API for managing groups of related tasks
+
+**Deep dives**
+- [Virtual Threads in Java — Baeldung](https://www.baeldung.com/java-virtual-threads) — comprehensive overview with code examples
+- [Pinning in Virtual Threads — Nicolai Parlog](https://nipafx.dev/virtual-thread-pinning/) — detailed explanation of pinning, detection, and mitigation
+- [Thread Locals and Virtual Threads — Aleksey Shipilëv](https://shipilev.net/blog/2022/threadlocals-virtual-threads/) — performance analysis of thread-local overhead with virtual threads
+- [Project Loom: Modern Scalable Concurrency for Java — Ron Pressler (Oracle)](https://www.youtube.com/watch?v=Zg1n74ooCJQ) — design talk from the Project Loom lead
+
+**Migration guides**
+- [Spring Boot 3.2 Virtual Threads Support](https://spring.io/blog/2023/11/23/spring-boot-3-2-0-available-now) — what Spring handles automatically and what you need to check
+- [Migrating to Virtual Threads — InfoQ](https://www.infoq.com/articles/java-virtual-thread-migration/) — practical migration steps and common pitfalls
+- [Virtual Threads: A Practical Guide — Sebastian Daschner](https://www.youtube.com/watch?v=4pLGIyKfCZE) — live coding session showing common mistakes and fixes
+
+**Benchmarking**
+- [Virtual Threads Benchmarks — Thomas Wuerthinger](https://medium.com/graalvm/virtual-threads-benchmarks-e37436758f7b) — comparative benchmarks with platform threads across different workload types
+- [JMH Benchmarking Virtual Threads — OpenJDK](https://github.com/openjdk/jmh) — use JMH to benchmark your specific workload before and after migration
