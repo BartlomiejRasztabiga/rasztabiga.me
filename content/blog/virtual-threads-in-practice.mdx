@@ -248,6 +248,8 @@ Any library that uses `ThreadLocal` or `synchronized` + blocking I/O is a potent
 
 ### Configure observability
 
+For a full Spring Boot observability stack, see [Observability in 2026](/blog/observability-2026-spring-boot).
+
 Virtual threads change what metrics matter:
 
 ```yaml
@@ -305,16 +307,17 @@ Virtual threads are the biggest change to Java concurrency since `java.util.conc
 - [JEP 453: Structured Concurrency (Preview)](https://openjdk.org/jeps/453) — the companion API for managing groups of related tasks
 
 **Deep dives**
-- [Virtual Threads in Java — Baeldung](https://www.baeldung.com/java-virtual-threads) — comprehensive overview with code examples
-- [Pinning in Virtual Threads — Nicolai Parlog](https://nipafx.dev/virtual-thread-pinning/) — detailed explanation of pinning, detection, and mitigation
-- [Thread Locals and Virtual Threads — Aleksey Shipilëv](https://shipilev.net/blog/2022/threadlocals-virtual-threads/) — performance analysis of thread-local overhead with virtual threads
-- [Project Loom: Modern Scalable Concurrency for Java — Ron Pressler (Oracle)](https://www.youtube.com/watch?v=Zg1n74ooCJQ) — design talk from the Project Loom lead
+- [Virtual Threads vs Platform Threads — Baeldung](https://www.baeldung.com/java-virtual-thread-vs-thread) — comprehensive comparison of thread models, builder API, and continuations
+- [Java Virtual Thread Pinning — Todd Ginsberg](https://todd.ginsberg.com/post/java/virtual-thread-pinning/) — detailed explanation of pinning, JFR detection, and ReentrantLock mitigation
+- [JEP 444: Virtual Threads — OpenJDK](https://openjdk.org/jeps/444) — thread-local behavior, migration guidance, and design decisions straight from the JDK team
+- [The State of Project Loom with Ron Pressler (nipafx)](https://www.youtube.com/watch?v=KG24inClY2M) — conversation with Project Loom lead on core mission, debugger challenges, GC interaction, and compatibility
 
 **Migration guides**
 - [Spring Boot 3.2 Virtual Threads Support](https://spring.io/blog/2023/11/23/spring-boot-3-2-0-available-now) — what Spring handles automatically and what you need to check
-- [Migrating to Virtual Threads — InfoQ](https://www.infoq.com/articles/java-virtual-thread-migration/) — practical migration steps and common pitfalls
-- [Virtual Threads: A Practical Guide — Sebastian Daschner](https://www.youtube.com/watch?v=4pLGIyKfCZE) — live coding session showing common mistakes and fixes
+- [Detecting Virtual Thread Pinning — Liviu Stirb](https://blog.blockingqueue.com/detecting-virtual-thread-pinning-in-java) — practical detection with `-Djdk.tracePinnedThreads` and Java 24+ changes
+- [Virtual Threads After JEP 491 — Tiare Balbi](https://tiarebalbi.com/en/blog/virtual-threads-after-jep-491-bottleneck-moved) — what actually breaks in production and how to find the real bottleneck
 
 **Benchmarking**
-- [Virtual Threads Benchmarks — Thomas Wuerthinger](https://medium.com/graalvm/virtual-threads-benchmarks-e37436758f7b) — comparative benchmarks with platform threads across different workload types
-- [JMH Benchmarking Virtual Threads — OpenJDK](https://github.com/openjdk/jmh) — use JMH to benchmark your specific workload before and after migration
+- [Spring Boot Virtual Threads: Benchmarks and Pitfalls — Devops Monk](https://devops-monk.com/2026/05/spring-boot-virtual-threads/) — real benchmark numbers comparing platform threads, virtual threads, and WebFlux
+- [Java 25 Virtual Threads: Benchmarks and Pitfalls — Spring Java Lab](https://www.springjavalab.com/2025/12/java-25-virtual-threads-benchmarks-pitfalls.html) — what breaks in production, database pool pitfalls, and ThreadLocal issues
+- [JMH — OpenJDK](https://github.com/openjdk/jmh) — use JMH to benchmark your specific workload before and after migration

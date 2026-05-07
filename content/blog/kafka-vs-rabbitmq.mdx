@@ -142,7 +142,7 @@ Example: detecting unusual login patterns. You stream login events to Kafka, run
 
 ### Decoupled microservices that evolve independently
 
-In a microservices architecture, services often need to react to each other's state changes. Kafka as an event backbone means services don't call each other directly — they just read from topics they care about.
+In a microservices architecture, services often need to react to each other's state changes. Kafka as an event backbone means services don't call each other directly — they just read from topics they care about. Don't forget to instrument these services with proper [observability](/blog/observability-2026-spring-boot).
 
 This also means you can add new services later that consume historical events without touching any existing code.
 
