@@ -1,0 +1,234 @@
+---
+title: "Consistent Hashing: The Pattern That Saves You When Nodes Die"
+publishedAt: "2026-05-10"
+description: "A practical guide to consistent hashing — what it is, why traditional hashing breaks at scale, and when to use it for database sharding, distributed caching, and Kafka partitions."
+tags: ["Distributed Systems", "Consistent Hashing", "System Design", "Caching", "Sharding", "Kafka"]
+---
+
+I used to think hashing was simple. You take a key, run it through a hash function, mod it by the number of nodes, and you're done — `hash(key) % N`. It distributes keys evenly, it's fast, and it works perfectly.
+
+Until I watched a cache cluster lose 80% of its keys during a routine scale-up.
+
+We added one node to a 3-node Redis cache. Simple change, right? `N` went from 3 to 4. But because of how modulo hashing works, almost every key now mapped to a *different* node. The cache hit rate dropped from 92% to 8% in seconds. The database buckled under the sudden load spike. It was a bad afternoon.
+
+That's when I learned about consistent hashing. And once I understood it, I started seeing it everywhere — in distributed caches, database sharding, Kafka partitions, and CDN routing. This post is the guide I wish I had that day.
+
+---
+
+## The problem with traditional hashing
+
+Let's start with what most of us reach for first: `hash(key) % N`.
+
+```python
+def get_node(key, nodes):
+    return nodes[hash(key) % len(nodes)]
+```
+
+It's simple and distributes keys evenly *when N is fixed*. But the moment N changes — a node is added, a node crashes, a node is removed for maintenance — the modulo shifts for almost every key.
+
+<ConsistentHashingImpactDiagram />
+
+With 3 nodes, `hash(k5) % 3 = 2`, so `k5` goes to Node 2. Add a 4th node, and `hash(k5) % 4` could be anything. In practice, **when you add or remove a node, roughly `(N-1)/N` of all keys remap to a different node**. With 3 nodes, that's ~67%. With 100 nodes, it's ~99%.
+
+In a cache, that means a massive cascade of cache misses. In a sharded database, that means data is suddenly on the wrong shard and queries break. This is the problem consistent hashing solves.
+
+---
+
+## What consistent hashing actually is
+
+The core idea: instead of hashing *keys to node indices*, you hash both **keys and nodes onto a circular space** (the "hash ring").
+
+<ConsistentHashingDiagram />
+
+Here's how it works:
+
+1. Imagine a circle representing the range of the hash function (e.g., 0 to 2³²-1 for MD5, or 0 to 2⁶³-1 for MurmurHash).
+2. Place each **node** on the circle at position `hash(node_id)`.
+3. Place each **key** on the circle at position `hash(key)`.
+4. To find which node owns a key, walk **clockwise** on the circle until you hit a node. That's the owner.
+
+When a node is added or removed, only the keys that were mapped to that node (and now map to its clockwise neighbor) need to move. Everything else stays put.
+
+**With 3 nodes, adding a 4th remaps roughly `1/4` of the keys — not `3/4`.** That's the entire point.
+
+---
+
+## The virtual node trick
+
+There's a subtle problem with the basic approach. If you only have a few nodes, their positions on the ring might be uneven. One node could end up responsible for 60% of the keys just because of where its hash landed. This is called **hash skew**.
+
+The fix is **virtual nodes** (also called "vnodes"). Each physical node is represented by many (often 100–200) virtual nodes spread around the ring.
+
+<ConsistentHashingVirtualNodesDiagram />
+
+When you add a physical node, you add 100+ virtual nodes at different positions. This smooths out the distribution dramatically. Each physical node ends up owning roughly `1/N` of the ring, even with a small number of nodes.
+
+Cassandra, Memcached, and DynamoDB all use virtual nodes. In Cassandra, the default is 256 virtual nodes per physical node. You don't need to implement this yourself — most libraries handle it — but it's important to understand why it's there.
+
+---
+
+## When to actually use consistent hashing
+
+Here's where it gets practical. Consistent hashing isn't a magic bullet for everything. It solves a specific problem: **minimizing key remapping when the set of nodes changes**.
+
+### Database sharding
+
+This is the classic use case. You have data sharded across multiple database instances, and you want to add or remove shards without migrating most of your data.
+
+| Without consistent hashing | With consistent hashing |
+|---|---|
+| Adding a shard → rebalance ~99% of data | Adding a shard → rebalance ~1/N of data |
+| Shrinking cluster = massive migration | Shrinking cluster = minimal migration |
+
+**When it fits:** Your shard key is stable (user_id, tenant_id), and you need to add/remove shards regularly. MongoDB uses consistent hashing for shard distribution.
+
+**When it doesn't:** If your shard count is fixed and you use range-based sharding instead (e.g., user_id 0–9999 → shard A, 10000–19999 → shard B), consistent hashing adds complexity without benefit.
+
+### Distributed caching (Redis, Memcached)
+
+This is where I learned the lesson. A cache cluster using modulo hashing will have a catastrophic miss storm on any topology change.
+
+With consistent hashing:
+- A node failure means only its keys are lost (they remap to the next node clockwise)
+- Adding a node only steals keys from one neighbor
+- The rest of the cache stays warm
+
+**Real example:** You have a 10-node Redis cluster caching user profiles. Node 7 crashes. Without consistent hashing, 10% of keys remap to random nodes — but actually, with modulo, *all* keys remap, so the entire cache is effectively cold. With consistent hashing, only ~10% of keys (the ones that were on Node 7) are lost. The other 90% stay cached.
+
+**Important note:** This assumes a client-side consistent hashing implementation or a proxy that supports it. Redis Cluster uses a different approach (hash slots), but the principle is similar. AWS ElastiCache for Memcached supports consistent hashing natively.
+
+### Kafka partition assignment
+
+Kafka doesn't use consistent hashing by that name, but the partition assignment logic follows the same principle. When a new consumer joins a consumer group, Kafka rebalances partitions across consumers. The goal is to minimize partition reassignment — only move partitions from the departing consumer to the new one, not reshuffle everything.
+
+Kafka's **sticky partition assignment** (the default since Kafka 2.4) is essentially consistent hashing for consumers. It tries to keep existing assignments stable and only reassign what's necessary.
+
+**When it fits:** Any system where you have partitioned data and consumers that can come and go.
+
+### CDN and load balancer routing
+
+Content delivery networks use consistent hashing to route requests to origin servers. If you're building a custom load balancer that needs to route sessions to specific backend servers (for sticky sessions), consistent hashing lets you add/remove backends without breaking most existing sessions.
+
+**Real example:** You're routing user requests to backend servers based on `user_id`. With consistent hashing, if you add a new backend server, most users still hit the same server they were talking to before. Their in-memory session data is still there.
+
+### What it doesn't help with
+
+Consistent hashing is **not** a solution for:
+- **Hot keys** — if one key gets 90% of the traffic, it doesn't matter how you hash, that node will be overloaded. You need a different strategy (key splitting, dedicated caching).
+- **Data replication** — consistent hashing tells you *where* a key lives, not *how many copies* exist. You still need a replication strategy.
+- **Strong consistency** — knowing which node owns a key doesn't guarantee that node has the latest value. That's a separate problem (consensus, quorums, etc.).
+
+---
+
+## The trade-offs nobody tells you about
+
+### Memory overhead of virtual nodes
+
+More virtual nodes = better distribution, but also more memory to track the ring. With 200 virtual nodes per physical node and 100 physical nodes, you're tracking 20,000 points on the ring. This is fine for most systems, but it's not free.
+
+### Lookup complexity
+
+Finding the right node means searching the ring. A naive implementation is O(N), but you can use a sorted data structure (balanced tree, skip list) to get O(log N). In practice, with hundreds of virtual nodes, this is negligible.
+
+### It's not always available out of the box
+
+Many tools don't expose consistent hashing directly. Redis Cluster uses hash slots (16384 fixed slots, which is conceptually similar). PostgreSQL sharding extensions (like Citus) handle this internally. You might need to implement it yourself if you're building a custom system.
+
+---
+
+## A minimal implementation
+
+Here's a working Python implementation to make it concrete:
+
+```python
+import hashlib
+import bisect
+
+class ConsistentHash:
+    def __init__(self, nodes=None, virtual_replicas=150):
+        self.virtual_replicas = virtual_replicas
+        self.ring = []        # sorted list of hash positions
+        self.node_map = {}    # hash position → node
+        if nodes:
+            for node in nodes:
+                self.add_node(node)
+
+    def _hash(self, key):
+        return int(hashlib.md5(key.encode()).hexdigest(), 16)
+
+    def add_node(self, node):
+        for i in range(self.virtual_replicas):
+            vnode = f"{node}#{i}"
+            h = self._hash(vnode)
+            bisect.insort(self.ring, h)
+            self.node_map[h] = node
+
+    def remove_node(self, node):
+        for i in range(self.virtual_replicas):
+            vnode = f"{node}#{i}"
+            h = self._hash(vnode)
+            idx = bisect.bisect_left(self.ring, h)
+            if idx < len(self.ring) and self.ring[idx] == h:
+                del self.ring[idx]
+                del self.node_map[h]
+
+    def get_node(self, key):
+        if not self.ring:
+            return None
+        h = self._hash(key)
+        idx = bisect.bisect_left(self.ring, h)
+        if idx == len(self.ring):
+            idx = 0  # wrap around
+        return self.node_map[self.ring[idx]]
+```
+
+The key insight: `bisect.bisect_left` finds the next clockwise node on the ring. The ring wraps around (if `idx == len(ring)`, go back to position 0).
+
+---
+
+## How to choose: a quick decision guide
+
+| Your situation | Use consistent hashing? |
+|---|---|
+| Cache cluster that scales up/down | **Yes** — prevents cache miss storms |
+| Database sharding with changing shard count | **Yes** — minimizes data migration |
+| Kafka partition assignment | **Built-in** — sticky assignment does this |
+| CDN/load balancer routing | **Yes** — stable session affinity |
+| Fixed shard count, range-based | **No** — simpler approaches work |
+| Single-node or active-passive setup | **No** — overkill |
+| Hot key problem | **No** — need key splitting instead |
+
+---
+
+## The mistake I actually made
+
+Going back to that cache incident: the team knew we needed to scale. We added a node to the Redis cluster. The problem wasn't adding the node — it was that our client library used `hash(key) % len(nodes)` to decide which Redis instance to talk to.
+
+When we added the 4th node, every client suddenly computed different targets for almost every key. The fix was to switch to a client library that supported consistent hashing (or in our case, we migrated to Redis Cluster which handles this differently with hash slots).
+
+The real lesson: **if your system needs to add or remove nodes at runtime, and you're using a hash-based routing strategy, consistent hashing isn't optional. It's the difference between a smooth scale-up and a production incident.**
+
+---
+
+## Summary
+
+- **Traditional hashing** (`hash % N`) remaps almost all keys when N changes — catastrophic for caches and sharded databases
+- **Consistent hashing** maps keys and nodes onto a ring; only keys near the changed node need to remap
+- **Virtual nodes** fix hash skew by giving each physical node many positions on the ring
+- **Use it for:** distributed caches, database sharding, CDN routing, consumer group rebalancing
+- **Don't use it for:** fixed topologies, hot key problems, or when you need strong consistency guarantees
+- Most mature distributed systems (Cassandra, DynamoDB, Memcached, Kafka) use it internally — you're probably already relying on it
+
+If you're building a distributed system where nodes come and go, consistent hashing is one of those patterns that pays for itself the first time you need to scale.
+
+---
+
+## References
+
+- [Consistent Hashing and Random Trees (Karger et al., 1997)](https://dl.acm.org/doi/10.1145/258533.258660) — the original paper that introduced consistent hashing at MIT
+- [Dynamo: Amazon's Highly Available Key-value Store](https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf) — uses consistent hashing with virtual nodes in production
+- [Cassandra Architecture — Data Distribution](https://cassandra.apache.org/doc/latest/cassandra/architecture/dynamo.html) — how Cassandra uses consistent hashing with 256 vnodes per node
+- [Redis Cluster Specification](https://redis.io/docs/reference/cluster-spec/) — Redis uses hash slots (16384) as a similar alternative to consistent hashing
+- [Martin Kleppmann — Designing Data-Intensive Applications](https://dataintensive.net/) — chapter 6 covers partitioning strategies including consistent hashing
+- [Kafka Consumer Rebalance Protocol](https://kafka.apache.org/documentation/#consumer_rebalance) — sticky partition assignment follows consistent hashing principles
+- [AWS ElastiCache for Memcached — Consistent Hashing](https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/AutoDiscovery.HowAutoDiscoveryWorks.html) — how AWS implements it for managed Memcached

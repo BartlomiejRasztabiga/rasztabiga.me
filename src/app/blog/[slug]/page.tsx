@@ -10,6 +10,9 @@ import { KafkaFanoutDiagram } from '@/components/blog/diagrams/KafkaFanoutDiagra
 import { RabbitMQScalingDiagram } from '@/components/blog/diagrams/RabbitMQScalingDiagram';
 import { KafkaScalingDiagram } from '@/components/blog/diagrams/KafkaScalingDiagram';
 import { DecisionFlowchart } from '@/components/blog/diagrams/DecisionFlowchart';
+import { ConsistentHashingDiagram } from '@/components/blog/diagrams/ConsistentHashingDiagram';
+import { ConsistentHashingVirtualNodesDiagram } from '@/components/blog/diagrams/ConsistentHashingVirtualNodesDiagram';
+import { ConsistentHashingImpactDiagram } from '@/components/blog/diagrams/ConsistentHashingImpactDiagram';
 
 export const generateStaticParams = async () => {
   const posts = await getAllPosts();
@@ -105,7 +108,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         )}
       </div>
       <article className="prose prose-neutral dark:prose-invert max-w-none mb-10">
-        <Content components={{ RabbitMQDiagram, KafkaDiagram, WorkerQueueDiagram, KafkaFanoutDiagram, RabbitMQScalingDiagram, KafkaScalingDiagram, DecisionFlowchart }} />
+        <Content components={{ RabbitMQDiagram, KafkaDiagram, WorkerQueueDiagram, KafkaFanoutDiagram, RabbitMQScalingDiagram, KafkaScalingDiagram, DecisionFlowchart, ConsistentHashingDiagram, ConsistentHashingVirtualNodesDiagram, ConsistentHashingImpactDiagram }} />
       </article>
     </>
   );
