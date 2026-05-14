@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `${RESUME_DATA.name} - Resume`,
     description: RESUME_DATA.about,
+    siteName: RESUME_DATA.name,
     type: "profile",
     locale: "en_US",
     images: [

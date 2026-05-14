@@ -11,6 +11,9 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rasztabiga.me"),
+  openGraph: {
+    siteName: "Bartłomiej Rasztabiga",
+  },
 };
 
 export default function RootLayout({
