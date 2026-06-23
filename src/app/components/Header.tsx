@@ -206,8 +206,8 @@ export function Header() {
       >
         <img
           alt={`${RESUME_DATA.name}'s profile picture`}
-          src="/headshot-112.jpg"
-          srcSet="/headshot-112.jpg 112w, /headshot-224.jpg 224w"
+          src="/headshot1-112.jpg"
+          srcSet="/headshot1-112.jpg 112w, /headshot1-224.jpg 224w"
           sizes="112px"
           width={112}
           height={112}
