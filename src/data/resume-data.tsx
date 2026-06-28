@@ -48,12 +48,28 @@ export const RESUME_DATA = {
   ],
   work: [
     {
+      company: "Wonderful",
+      link: "https://wonderful.ai",
+      badges: ["Remote"],
+      title: "Forward Deployed Engineer",
+      start: "Jul 2026",
+      end: "",
+      description: (
+        <div>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Embedded in enterprise client environments, taking technical ownership of AI agent deployments end-to-end — from integration design through production rollout across complex enterprise systems.</li>
+          </ul>
+          <p className="mt-1"><strong>Tech stack:</strong> Python, AI agents, LLM integrations</p>
+        </div>
+      ),
+    },
+    {
       company: "Symmetrical.ai",
       link: "https://symmetrical.ai",
       badges: ["Warsaw"],
       title: "Senior Software Engineer",
       start: "Jan 2022",
-      end: "",
+      end: "Jun 2026",
       description: (
         <div>
           <ul className="list-disc list-inside space-y-1">
