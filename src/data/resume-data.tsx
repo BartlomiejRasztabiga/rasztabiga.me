@@ -59,7 +59,7 @@ export const RESUME_DATA = {
           <ul className="list-disc list-inside space-y-1">
             <li>Embedded in enterprise client environments, taking technical ownership of AI agent deployments end-to-end — from integration design through production rollout across complex enterprise systems.</li>
           </ul>
-          <p className="mt-1"><strong>Tech stack:</strong> Go, TypeScript, React.js, AWS, GCP, AI agents, LLM integrations</p>
+          <p className="mt-1"><strong>Tech stack:</strong> Go, TypeScript, React.js, AWS, GCP, Twilio, Soniox, Deepdub, ElevenLabs, AI agents, LLM integrations</p>
         </div>
       ),
     },
