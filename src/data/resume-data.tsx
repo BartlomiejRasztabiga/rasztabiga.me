@@ -153,6 +153,7 @@ export const RESUME_DATA = {
   skills: [
     "Kotlin",
     "Java",
+    "Go",
     "Python",
     "TypeScript",
     "Spring Boot",
